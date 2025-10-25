@@ -1,0 +1,12 @@
+name: BungeeAPI
+version: '${project.version}'
+main: net.boom3r.bungeeapi.BungeeAPI
+author: BoOm3r
+commands:
+  hub:
+    description: Send U to Hub
+    permission: bungeeAPI.permission.hub
+  servermanager:
+    description: Permit to manage backend servers of BungeeCord
+    permission: bungeeAPI.permission.servermanager
+    aliases: [sm]
