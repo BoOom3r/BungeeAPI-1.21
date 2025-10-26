@@ -41,7 +41,7 @@ public class MaintenanceCMD extends Command {
             }
         } else {
                 try (Connection sql = dataSourcePool.getConnection();
-                     PreparedStatement statement = sql.prepareStatement("SELECT * FROM servers WHERE name = ?");)
+                     PreparedStatement statement = sql.prepareStatement("SELECT * FROM network_servers WHERE name = ?");)
                 {                      statement.setString(1, args[1]);
                     ResultSet result = statement.executeQuery();
                 if (result.getFetchSize() > 0 ){

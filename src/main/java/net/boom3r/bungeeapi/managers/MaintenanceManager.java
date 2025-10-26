@@ -31,7 +31,7 @@ public class MaintenanceManager {
 
     public static boolean updateDB(String server, boolean status){
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("REPLACE INTO maintenance (server_name, status) VALUES (?, ?)");
+             PreparedStatement statement = sql.prepareStatement("REPLACE INTO network_maintenance (server_name, status) VALUES (?, ?)");
         ) {
             statement.setString(1, server);
             statement.setBoolean(2, status);

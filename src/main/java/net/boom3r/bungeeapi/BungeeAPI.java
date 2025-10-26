@@ -85,7 +85,7 @@ public final class BungeeAPI extends Plugin {
     public static void getServerList() {
         List<String> listRetour = new ArrayList<>();
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("SELECT name FROM servers WHERE status=?");
+             PreparedStatement statement = sql.prepareStatement("SELECT name FROM network_servers WHERE status=?");
         ) {
             statement.setInt(1, 1);
 
@@ -107,7 +107,7 @@ public final class BungeeAPI extends Plugin {
         boolean listRetour = false;
 
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("SELECT status FROM maintenance WHERE server_name=?");
+             PreparedStatement statement = sql.prepareStatement("SELECT status FROM network_maintenance WHERE server_name=?");
         ) {
             statement.setString(1, "global");
 
