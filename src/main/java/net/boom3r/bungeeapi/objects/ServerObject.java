@@ -1,5 +1,7 @@
 package net.boom3r.bungeeapi.objects;
 
+import net.boom3r.bungeeapi.managers.MaintenanceManager;
+
 import java.util.UUID;
 
 public class ServerObject {
@@ -13,6 +15,16 @@ public class ServerObject {
     int status;
     boolean maintenance;
 
+    public ServerObject(String uuid, String name, String address, int port, String motd, int status, boolean maintenance) {
+        this.uuid = UUID.fromString(uuid);
+        this.name = name;
+        this.address = address;
+        this.port = port;
+        this.status = status;
+        this.maintenance = maintenance;
+        this.motd = motd;
+    }
+
     public void setMotd(String motd) {
         this.motd = motd;
     }
@@ -25,13 +37,14 @@ public class ServerObject {
         this.status = status;
     }
 
-    public ServerObject(UUID uuid, String name, String address, int port, int status, boolean maintenance) {
+    public ServerObject(UUID uuid, String name, String address, int port, String motd, int status, boolean maintenance) {
         this.uuid = uuid;
         this.name = name;
         this.address = address;
         this.port = port;
         this.status = status;
         this.maintenance = maintenance;
+        this.motd = motd;
     }
 
     public UUID getUuid() {
@@ -60,6 +73,19 @@ public class ServerObject {
 
     public int getStatus() {
         return status;
+    }
+
+    public boolean getMaintenance() {
+        return maintenance;
+    }
+    public void setMaintenance(String name, boolean maintenance) {
+        if (maintenance){
+            MaintenanceManager.enableMaintenance(name);
+        } else {
+            MaintenanceManager.disableMaintenance(name);
+        }
+
+        this.maintenance = maintenance;
     }
 
 

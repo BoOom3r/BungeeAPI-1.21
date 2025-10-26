@@ -10,6 +10,7 @@ import net.boom3r.bungeeapi.listeners.MOTDListener;
 import net.boom3r.bungeeapi.managers.ConfManager;
 import net.boom3r.bungeeapi.managers.HConnection;
 import net.boom3r.bungeeapi.managers.LogManager;
+import net.boom3r.bungeeapi.managers.ServerManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -37,6 +38,7 @@ public final class BungeeAPI extends Plugin {
     public static boolean maintenance = false;
     public static ConfManager confManager;
     public static Logger logger;
+    public static ServerManager serverManager;
 
     @Override
     public void onEnable() {
@@ -69,6 +71,10 @@ public final class BungeeAPI extends Plugin {
                 confManager.getConfig().getString("database.mysql.password")
         );
 
+        // Chargement du serveur Manager
+        serverManager = new ServerManager();
+        serverManager.initServerList();
+
         // Vérification de l'état de maintenance
         isNetworkMaintenance();
 
@@ -85,7 +91,7 @@ public final class BungeeAPI extends Plugin {
     public static void getServerList() {
         List<String> listRetour = new ArrayList<>();
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("SELECT name FROM network_servers WHERE status=?");
+             PreparedStatement statement = sql.prepareStatement("SELECT name FROM network_servers WHERE status=? AND inactive = false");
         ) {
             statement.setInt(1, 1);
 

@@ -27,42 +27,55 @@ public class MaintenanceCMD extends Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        if(args.length == 1) {
-            switch (args[0]) {
-                case "on":
-                    MaintenanceManager.enableMaintenance("global");
-                    MessengerManager.sendToAdmins("La maintenance sur le serveur a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
-                case "off":
-                    MaintenanceManager.disableMaintenance("global");
-                    MessengerManager.sendToAdmins("La maintenance sur le serveur a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
-                default:
-                    BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");
+        switch (args.length){
+            case 1:
+                switch (args[0]) {
+                    case "on":
+                        MaintenanceManager.enableMaintenance("global");
+                        MessengerManager.sendToAdmins("La maintenance sur le serveur a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
+                        break;
+                    case "off":
+                        MaintenanceManager.disableMaintenance("global");
+                        MessengerManager.sendToAdmins("La maintenance sur le serveur a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
+                        break;
+                    default:
+                        BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");
+                        break;
 
-            }
-        } else {
+                }
+                break;
+            case 2:
+                logger.info("Maintenance sur serveur précisée : "+args[1]);
                 try (Connection sql = dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement("SELECT * FROM network_servers WHERE name = ?");)
                 {                      statement.setString(1, args[1]);
                     ResultSet result = statement.executeQuery();
-                if (result.getFetchSize() > 0 ){
-                      logger.info("Il existe un serveur de ce nom");
+                    if(!result.next()) return;
+                    logger.info("Il existe un serveur de ce nom");
                     switch (args[0]) {
                         case "on":
                             MaintenanceManager.enableMaintenance(args[1]);
                             MessengerManager.sendToAdmins("La maintenance sur le serveur "+args[1]+" a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
+                            break;
                         case "off":
                             MaintenanceManager.disableMaintenance(args[1]);
                             MessengerManager.sendToAdmins("La maintenance sur le serveur "+args[1]+" a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
+                            break;
                         default:
                             BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");
+                            break;
 
-                    }
-                }
-
+                        }
+                    result.close();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-            }
+                break;
+            default:
+                BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");
+                break;
         }
+
+    }
 }
 
