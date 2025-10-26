@@ -8,7 +8,6 @@ import net.boom3r.bungeeapi.listeners.MOTDListener;
 import net.boom3r.bungeeapi.managers.HConnection;
 import net.boom3r.bungeeapi.managers.LogManager;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
