@@ -1,7 +1,7 @@
-package net.boom3r.bungeeapi.listeners;
+package net.boom3r.bungeeapi.core.listeners;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.manager.WhiteListManager;
+import net.boom3r.bungeeapi.core.managers.WhiteListManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

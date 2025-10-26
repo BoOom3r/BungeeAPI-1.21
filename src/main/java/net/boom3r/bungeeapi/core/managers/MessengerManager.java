@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.core.manager;
+package net.boom3r.bungeeapi.core.managers;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;

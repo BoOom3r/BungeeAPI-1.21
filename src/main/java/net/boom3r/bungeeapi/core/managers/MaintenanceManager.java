@@ -1,14 +1,10 @@
-package net.boom3r.bungeeapi.managers;
+package net.boom3r.bungeeapi.core.managers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Locale;
 
 public class MaintenanceManager {
 

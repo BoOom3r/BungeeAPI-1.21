@@ -1,8 +1,7 @@
-package net.boom3r.bungeeapi.managers;
+package net.boom3r.bungeeapi.core.managers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
 import java.util.logging.Logger;
@@ -10,7 +9,7 @@ import java.util.logging.Logger;
 import static net.boom3r.bungeeapi.BungeeAPI.PREFIX;
 import static net.boom3r.bungeeapi.BungeeAPI.DEBUGLVL;
 import static net.boom3r.bungeeapi.BungeeAPI.DEBUG;
-import static net.boom3r.bungeeapi.core.manager.MessengerManager.sendToAdmins;
+import static net.boom3r.bungeeapi.core.managers.MessengerManager.sendToAdmins;
 
 public class LogManager {
     public static Logger logger = BungeeAPI.bungeeInstance.getLogger();

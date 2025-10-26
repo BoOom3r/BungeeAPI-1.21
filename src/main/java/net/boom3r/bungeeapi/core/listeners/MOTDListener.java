@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.listeners;
+package net.boom3r.bungeeapi.core.listeners;
 
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.md_5.bungee.api.ChatColor;

@@ -1,6 +1,6 @@
-package net.boom3r.bungeeapi.objects;
+package net.boom3r.bungeeapi.core.objects;
 
-import net.boom3r.bungeeapi.managers.MaintenanceManager;
+import net.boom3r.bungeeapi.core.managers.MaintenanceManager;
 
 import java.util.UUID;
 

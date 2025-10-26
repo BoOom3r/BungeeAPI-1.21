@@ -1,15 +1,12 @@
-package net.boom3r.bungeeapi.core.manager;
+package net.boom3r.bungeeapi.core.managers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class WhiteListManager {
 

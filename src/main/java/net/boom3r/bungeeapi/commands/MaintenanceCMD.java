@@ -1,14 +1,9 @@
 package net.boom3r.bungeeapi.commands;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.manager.MessengerManager;
-import net.boom3r.bungeeapi.managers.LogManager;
-import net.boom3r.bungeeapi.managers.MaintenanceManager;
-import net.md_5.bungee.api.ChatColor;
+import net.boom3r.bungeeapi.core.managers.LogManager;
+import net.boom3r.bungeeapi.core.managers.MaintenanceManager;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
@@ -16,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.BreakIterator;
 
 import static net.boom3r.bungeeapi.BungeeAPI.*;
 

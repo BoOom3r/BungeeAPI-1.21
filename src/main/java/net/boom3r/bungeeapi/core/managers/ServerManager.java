@@ -1,7 +1,7 @@
-package net.boom3r.bungeeapi.managers;
+package net.boom3r.bungeeapi.core.managers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.objects.ServerObject;
+import net.boom3r.bungeeapi.core.objects.ServerObject;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;

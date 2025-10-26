@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.managers;
+package net.boom3r.bungeeapi.core.managers;
 
 
 import com.zaxxer.hikari.HikariDataSource;
@@ -6,7 +6,7 @@ import net.boom3r.bungeeapi.BungeeAPI;
 
 import java.sql.Connection;
 
-import static net.boom3r.bungeeapi.managers.LogManager.logger;
+import static net.boom3r.bungeeapi.core.managers.LogManager.logger;
 
 public class HConnection {
 
