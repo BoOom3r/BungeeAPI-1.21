@@ -18,6 +18,7 @@ public class ConfManager {
 
 
     Configuration configuration;
+
     private final Plugin plugin;
 
     public ConfManager(Plugin plugin) {
@@ -42,6 +43,9 @@ public class ConfManager {
         if (!configFile.exists()) {
             FileOutputStream outputStream = new FileOutputStream(configFile); // Throws IOException
             InputStream in = plugin.getClass().getClassLoader().getResourceAsStream("config.yml"); // This file must exist in the jar resources folder
+            if (in == null) {
+                throw new IllegalArgumentException("The embedded resource config.yml cannot be found");
+            }
             in.transferTo(outputStream); // Throws IOException
         }
         loadConfig();

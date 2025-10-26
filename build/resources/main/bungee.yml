@@ -1,5 +1,5 @@
 name: BungeeAPI
-version: '${project.version}'
+version: '1.0.0.0'
 main: net.boom3r.bungeeapi.BungeeAPI
 author: BoOm3r
 commands:
@@ -8,5 +8,11 @@ commands:
     permission: bungeeAPI.permission.hub
   servermanager:
     description: Permit to manage backend servers of BungeeCord
-    permission: bungeeAPI.permission.servermanager
+    permission: bungeeAPI.admin.servermanager
     aliases: [sm]
+  maintenance:
+    description: Permit to manage maintenance
+    permission: bungeeAPI.admin.maintenance
+  kick:
+    description: Permit to kick
+    permission: bungeeAPI.modo.kick

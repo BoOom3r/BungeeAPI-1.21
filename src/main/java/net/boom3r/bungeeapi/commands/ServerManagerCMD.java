@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
 
 public class ServerManagerCMD extends Command {
     public ServerManagerCMD() {
-        super("servermanager", "bungeeAPI.permission.servermanager");
+        super("servermanager", "bungeeAPI.admin.servermanager");
     }
 
     @Override

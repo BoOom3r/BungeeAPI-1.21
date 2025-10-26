@@ -22,8 +22,8 @@ repositories {
 
 
 dependencies {
-    implementation 'net.md-5:bungeecord-api:1.21-R0.4'
-    implementation 'net.md-5:bungeecord-chat:1.21-R0.4'
+    compileOnly 'net.md-5:bungeecord-api:1.21-R0.4'
+    compileOnly 'net.md-5:bungeecord-chat:1.21-R0.4'
     implementation('com.zaxxer:HikariCP:7.0.2')
     compileOnly "mysql:mysql-connector-java:8.0.33"
 }
@@ -54,9 +54,10 @@ processResources {
 
 shadowJar {
     minimize()
-    archiveBaseName.set('B3API')
+    archiveBaseName.set('BungeeAPI')
     archiveClassifier.set('')
     mergeServiceFiles()
+    //from(sourceSets.main.resources)
     dependencies {
         exclude(dependency("org.vafer:jdeb"))
         exclude(dependency("org.hidetake.ssh:org.hidetake.ssh.gradle.plugin"))

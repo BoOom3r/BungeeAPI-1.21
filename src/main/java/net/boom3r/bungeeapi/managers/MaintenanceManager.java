@@ -13,6 +13,9 @@ public class MaintenanceManager {
         if(server.equalsIgnoreCase("global")){
             BungeeAPI.maintenance = true;
             updateDB("global",true);
+        } else {
+            // TODO ServerObject.maintenance on
+            updateDB(server,true);
         }
     }
 
@@ -20,6 +23,9 @@ public class MaintenanceManager {
         if(server.equalsIgnoreCase("global")){
             BungeeAPI.maintenance = false;
             updateDB("global",false);
+        } else {
+            // TODO ServerObject.maintenance off
+            updateDB(server,false);
         }
     }
 

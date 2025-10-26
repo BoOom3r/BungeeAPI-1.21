@@ -11,6 +11,7 @@ public class ServerObject {
     String motd;
     int nbPlayers;
     int status;
+    boolean maintenance;
 
     public void setMotd(String motd) {
         this.motd = motd;
@@ -24,12 +25,13 @@ public class ServerObject {
         this.status = status;
     }
 
-    public ServerObject(UUID uuid, String name, String address, int port, int status) {
+    public ServerObject(UUID uuid, String name, String address, int port, int status, boolean maintenance) {
         this.uuid = uuid;
         this.name = name;
         this.address = address;
         this.port = port;
         this.status = status;
+        this.maintenance = maintenance;
     }
 
     public UUID getUuid() {

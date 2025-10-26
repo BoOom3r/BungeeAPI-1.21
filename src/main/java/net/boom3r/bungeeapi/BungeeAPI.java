@@ -1,7 +1,9 @@
 package net.boom3r.bungeeapi;
 
 import com.zaxxer.hikari.HikariDataSource;
+import net.boom3r.bungeeapi.commands.GlobalKickCMD;
 import net.boom3r.bungeeapi.commands.HubCMD;
+import net.boom3r.bungeeapi.commands.MaintenanceCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.listeners.MOTDListener;
@@ -51,10 +53,12 @@ public final class BungeeAPI extends Plugin {
         }
 
         // Enregistrement des listeners
-        getProxy().getPluginManager().registerListener(this, new BungeeListeners());
-        getProxy().getPluginManager().registerListener(this, new MOTDListener());
-        getProxy().getPluginManager().registerCommand(this, new HubCMD());
-        getProxy().getPluginManager().registerCommand(this, new ServerManagerCMD());
+        getProxy().getPluginManager().registerListener(bungeeInstance, new BungeeListeners());
+        getProxy().getPluginManager().registerListener(bungeeInstance, new MOTDListener());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new HubCMD());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new ServerManagerCMD());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new MaintenanceCMD());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new GlobalKickCMD());
 
         // Création de la pool DB
         dataSourcePool = new HConnection().openPool(
