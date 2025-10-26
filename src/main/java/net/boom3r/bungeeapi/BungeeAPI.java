@@ -5,20 +5,25 @@ import net.boom3r.bungeeapi.commands.HubCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.listeners.MOTDListener;
+import net.boom3r.bungeeapi.managers.ConfManager;
 import net.boom3r.bungeeapi.managers.HConnection;
 import net.boom3r.bungeeapi.managers.LogManager;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public final class BungeeAPI extends Plugin {
     public static BungeeAPI bungeeInstance;
@@ -28,18 +33,42 @@ public final class BungeeAPI extends Plugin {
     public static HikariDataSource dataSourcePool;
     public static String networkPrefix = "[Network]";
     public static boolean maintenance = false;
+    public static ConfManager confManager;
+    public static Logger logger;
 
     @Override
     public void onEnable() {
+        // Démarrage du plugin
         bungeeInstance = this;
+        logger = getLogger();
 
+        // Chargement de la configuration
+        confManager = new ConfManager(bungeeInstance);
+        try {
+            confManager.makeConfig();
+        } catch (IOException e) {
+            logger.info(e.getMessage());
+        }
+
+        // Enregistrement des listeners
         getProxy().getPluginManager().registerListener(this, new BungeeListeners());
         getProxy().getPluginManager().registerListener(this, new MOTDListener());
         getProxy().getPluginManager().registerCommand(this, new HubCMD());
         getProxy().getPluginManager().registerCommand(this, new ServerManagerCMD());
 
-        dataSourcePool = new HConnection().openPool();
+        // Création de la pool DB
+        dataSourcePool = new HConnection().openPool(
+                confManager.getConfig().getString("database.mysql.host"),
+                confManager.getConfig().getInt("database.mysql.port"),
+                confManager.getConfig().getString("database.mysql.database"),
+                confManager.getConfig().getString("database.mysql.user"),
+                confManager.getConfig().getString("database.mysql.password")
+        );
+
+        // Vérification de l'état de maintenance
         isNetworkMaintenance();
+
+        // je sais pas
         getServerList();
     }
 
@@ -103,6 +132,11 @@ public final class BungeeAPI extends Plugin {
     public static TextComponent getFormatedMessage(String msg){
         TextComponent returnComponent = new TextComponent(msg);
         return  returnComponent;
+    }
+
+    public void stopBungeeCord(){
+        getLogger().severe("Arrêt du serveur BungeeCord...");
+        ProxyServer.getInstance().stop();
     }
 
 }
