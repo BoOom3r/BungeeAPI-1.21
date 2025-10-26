@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import static net.boom3r.bungeeapi.BungeeAPI.PREFIX;
 import static net.boom3r.bungeeapi.BungeeAPI.DEBUGLVL;
 import static net.boom3r.bungeeapi.BungeeAPI.DEBUG;
+import static net.boom3r.bungeeapi.core.manager.MessengerManager.sendToAdmins;
 
 public class LogManager {
     public static Logger logger = BungeeAPI.bungeeInstance.getLogger();
@@ -37,6 +38,11 @@ public class LogManager {
 
     public static void Warn(String msg){
         logger.warning(PREFIX+"[INFO] -> "+msg);
+    }
+
+    public static void Admin(String msg){
+        logger.info(ChatColor.RED+"[ADMIN]"+ChatColor.RESET+" -> "+msg);
+        sendToAdmins(msg);
     }
 
 }

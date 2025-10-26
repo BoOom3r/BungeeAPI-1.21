@@ -29,7 +29,6 @@ public class BungeeListeners implements Listener {
         ProxiedPlayer player = event.getPlayer();//A simple variable to define the player
         if(BungeeAPI.maintenance) {
             if ((player.hasPermission("bungeeAPI.maintenance." + event.getTarget().getName().toLowerCase(Locale.ROOT))) || (player.hasPermission("bungeeAPI.maintenance.global"))) {//Check if the player has the right permissions to join
-                BungeeAPI.sendFormatedMessage(player, "bungeeAPI.maitenance." + event.getTarget().getName().toLowerCase(Locale.ROOT));
                 return;
             } else {
                 player.disconnect(BungeeAPI.getFormatedMessage("Désolé, tu n'es pas autorisé à rejoindre pendant la maintenance"));//Here would go the kick method with it's own message!
