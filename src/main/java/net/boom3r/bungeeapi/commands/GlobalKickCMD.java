@@ -1,5 +1,6 @@
 package net.boom3r.bungeeapi.commands;
 
+import net.boom3r.bungeeapi.core.managers.LogManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -25,12 +26,12 @@ public class GlobalKickCMD extends Command {
                     reason += args[i]+" ";
                 }
 
-                bungeeInstance.logger.info(reason);
+                LogManager.Admin(reason);
             }
 
             ProxiedPlayer player = getInstance().getPlayer(playerName);
             if (player != null){
-                bungeeInstance.logger.info("Le joueur "+playerName+" a éé kické par "+sender);
+                LogManager.Admin("Le joueur "+playerName+" a été kické par "+sender);
                 player.disconnect(new TextComponent(reason));
             }
 

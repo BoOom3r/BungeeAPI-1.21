@@ -10,7 +10,7 @@ public class MessengerManager {
     public static void sendToAdmins(String message) {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             if (player.hasPermission("bungeeAPI.admin.messages")) {
-                player.sendMessage(new TextComponent(ChatColor.stripColor("AQUA")+"[BungeeAPI]"+ChatColor.stripColor("RESET")+"§c[Admin Chat] §f" + message));
+                player.sendMessage(new TextComponent("§b[BungeeAPI]§c[Admin Chat] §f" + message));
             }
         }
     }
