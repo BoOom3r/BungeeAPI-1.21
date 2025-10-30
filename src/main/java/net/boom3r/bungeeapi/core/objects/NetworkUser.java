@@ -5,6 +5,8 @@ import java.util.UUID;
 import static net.boom3r.bungeeapi.BungeeAPI.networkManager;
 
 public class NetworkUser {
+
+
     private UUID uuid;
     private String name;
     private String ip;
@@ -26,5 +28,25 @@ public class NetworkUser {
         this.ip = ip;
         networkManager.addNetworkUser(uuid, this);
 
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public boolean isLinked() {
+        return isLinked;
+    }
+
+    public boolean isOnline() {
+        return online;
     }
 }

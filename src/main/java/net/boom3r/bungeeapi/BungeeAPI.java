@@ -8,6 +8,7 @@ import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
 import net.boom3r.bungeeapi.core.managers.*;
+import net.boom3r.bungeeapi.runnables.ScheduledRunner;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -36,6 +37,8 @@ public final class BungeeAPI extends Plugin {
     public static Logger logger;
     public static ServerManager serverManager;
     public static NetworkManager networkManager;
+    private ScheduledRunner runner;
+    public static boolean whitelistEnabled = false;
 
     @Override
     public void onEnable() {
@@ -67,11 +70,15 @@ public final class BungeeAPI extends Plugin {
                 confManager.getConfig().getString("database.mysql.user"),
                 confManager.getConfig().getString("database.mysql.password")
         );
+
         networkManager = new NetworkManager();
 
         // Chargement du serveur Manager
         serverManager = new ServerManager();
         serverManager.initServerList();
+
+        runner = new ScheduledRunner(this);
+        runner.start();
 
 
         // Vérification de l'état de maintenance

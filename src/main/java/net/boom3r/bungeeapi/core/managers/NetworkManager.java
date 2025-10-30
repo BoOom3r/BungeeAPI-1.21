@@ -7,11 +7,14 @@ import java.util.*;
 public class NetworkManager {
 
     public Map<UUID, NetworkUser> networkUserList;
+    public NetworkUserManager networkUserManager;
 
     public NetworkManager() {
         networkUserList = new HashMap<>();
+        networkUserManager = new NetworkUserManager();
     }
     public void addNetworkUser(UUID uuid, NetworkUser nUser){
+        networkUserManager.updateNetworkUserDB(nUser);
         networkUserList.put(uuid, nUser);
     }
 
