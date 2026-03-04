@@ -7,6 +7,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.md_5.bungee.api.ProxyServer.getInstance;
 
 public class GlobalKickCMD extends Command {
@@ -26,12 +27,12 @@ public class GlobalKickCMD extends Command {
                     reason += args[i]+" ";
                 }
 
-                LogManager.Admin(reason);
+                bungeeLogger.Admin(reason);
             }
 
             ProxiedPlayer player = getInstance().getPlayer(playerName);
             if (player != null){
-                LogManager.Admin("Le joueur "+playerName+" a été kické par "+sender);
+                bungeeLogger.Admin("Le joueur "+playerName+" a été kické par "+sender);
                 player.disconnect(new TextComponent(reason));
             }
 

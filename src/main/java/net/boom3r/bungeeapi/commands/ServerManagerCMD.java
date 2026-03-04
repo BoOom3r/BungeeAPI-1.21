@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.boom3r.bungeeapi.BungeeAPI.serverManager;
 
 public class ServerManagerCMD extends Command implements TabExecutor {
@@ -53,7 +54,7 @@ public class ServerManagerCMD extends Command implements TabExecutor {
 
                 motd = motd.replaceAll("^\"|\"$", "");
 
-                LogManager.Admin("Ajout du serveur " + name + " par " + player.getName() +
+                bungeeLogger.Admin("Ajout du serveur " + name + " par " + player.getName() +
                         " via " + host + ":" + port + " avec MOTD : " + motd);
 
                 ServerManager.addServer(name, new InetSocketAddress(host, port), motd, false);

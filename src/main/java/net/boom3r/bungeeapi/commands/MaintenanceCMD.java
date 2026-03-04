@@ -29,11 +29,11 @@ public class MaintenanceCMD extends Command {
 
                     case "on":
                         MaintenanceManager.enableMaintenance("global");
-                        LogManager.Admin("La maintenance sur le serveur a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
+                        bungeeLogger.Admin("La maintenance sur le serveur a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
                         break;
                     case "off":
                         MaintenanceManager.disableMaintenance("global");
-                        LogManager.Admin("La maintenance sur le serveur a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
+                        bungeeLogger.Admin("La maintenance sur le serveur a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
                         break;
                     default:
                         BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");
@@ -42,21 +42,21 @@ public class MaintenanceCMD extends Command {
                 }
                 break;
             case 2:
-                LogManager.Admin("Maintenance sur serveur précisée : "+args[1]);
+                bungeeLogger.Admin("Maintenance sur serveur précisée : "+args[1]);
                 try (Connection sql = dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement("SELECT * FROM network_servers WHERE name = ?");)
                 {                      statement.setString(1, args[1]);
                     ResultSet result = statement.executeQuery();
                     if(!result.next()) return;
-                    LogManager.Admin("Il existe un serveur de ce nom");
+                    bungeeLogger.Admin("Il existe un serveur de ce nom");
                     switch (args[0]) {
                         case "on":
                             MaintenanceManager.enableMaintenance(args[1]);
-                            LogManager.Admin("La maintenance sur le serveur "+args[1]+" a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
+                            bungeeLogger.Admin("La maintenance sur le serveur "+args[1]+" a été activée par " + ((ProxiedPlayer) sender).getDisplayName());
                             break;
                         case "off":
                             MaintenanceManager.disableMaintenance(args[1]);
-                            LogManager.Admin("La maintenance sur le serveur "+args[1]+" a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
+                            bungeeLogger.Admin("La maintenance sur le serveur "+args[1]+" a été désactivée par " + ((ProxiedPlayer) sender).getDisplayName());
                             break;
                         default:
                             BungeeAPI.sendFormatedMessage(player, "Mauvaise synthaxe !");

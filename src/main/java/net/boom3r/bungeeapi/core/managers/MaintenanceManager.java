@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+
 public class MaintenanceManager {
 
     public static void enableMaintenance(String server){
@@ -38,10 +40,10 @@ public class MaintenanceManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                LogManager.Info("status enregistré");
+                bungeeLogger.Info("status enregistré");
                 return true;
             } else {
-                LogManager.Err("Problème dans l'ajout du status");
+                bungeeLogger.Err("Problème dans l'ajout du status");
                 return false;
             }
 

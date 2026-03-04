@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 
 public class ServerManager {
 
@@ -151,10 +152,10 @@ public class ServerManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                LogManager.Admin("Serveur enregistré");
+                bungeeLogger.Admin("Serveur enregistré");
                 return true;
             } else {
-                LogManager.Admin("Problème dans l'ajout du serveur");
+                bungeeLogger.Admin("Problème dans l'ajout du serveur");
                 return false;
             }
 
@@ -180,10 +181,10 @@ public class ServerManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                LogManager.Admin("Serveur inactivé");
+                bungeeLogger.Admin("Serveur inactivé");
                 return true;
             } else {
-                LogManager.Admin("Problème dans l'inactivation du serveur");
+                bungeeLogger.Admin("Problème dans l'inactivation du serveur");
                 return false;
             }
 
@@ -235,7 +236,7 @@ public class ServerManager {
     }
 
     public void refreshServerInstance() {
-        LogManager.Info("Rafraîchissement de la liste des serveurs...");
+        bungeeLogger.Info("Rafraîchissement de la liste des serveurs...");
 
         // 1️⃣ On nettoie la configuration actuelle
         ProxyServer.getInstance().getServers().clear();
@@ -286,16 +287,16 @@ public class ServerManager {
             }
 
             result.close();
-            LogManager.Info( + count + " serveurs actifs rechargés depuis la base.");
+            bungeeLogger.Info( + count + " serveurs actifs rechargés depuis la base.");
 
         } catch (SQLException e) {
-            LogManager.Warn("Erreur lors du rafraîchissement des serveurs : " + e.getMessage());
+            bungeeLogger.Warn("Erreur lors du rafraîchissement des serveurs : " + e.getMessage());
             e.printStackTrace();
         }
 
         // 7️⃣ (Optionnel) — si tu veux afficher dans la console
         for (ServerObject srv : serverlist.values()) {
-            LogManager.Info("→ " + srv.getName() + " : " + srv.getAddress() + ":" + srv.getPort());
+            bungeeLogger.Info("→ " + srv.getName() + " : " + srv.getAddress() + ":" + srv.getPort());
         }
     }
 

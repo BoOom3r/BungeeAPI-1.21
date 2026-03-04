@@ -6,6 +6,7 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 import java.util.concurrent.TimeUnit;
 
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.boom3r.bungeeapi.BungeeAPI.serverManager;
 
 public class ScheduledRunner implements Runnable {
@@ -74,7 +75,7 @@ public class ScheduledRunner implements Runnable {
                 serverManager.refreshServerInstance();
                 serverManager.clearServerListUpdateFlag();
             }
-            LogManager.Info("Refresh exécutée à " + System.currentTimeMillis());
+            bungeeLogger.Info("Refresh exécutée à " + System.currentTimeMillis());
 
         } catch (Exception e) {
             plugin.getLogger().severe("Erreur pendant l’exécution du runner : " + e.getMessage());
