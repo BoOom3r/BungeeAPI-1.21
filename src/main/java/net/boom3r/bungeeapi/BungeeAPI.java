@@ -5,6 +5,7 @@ import net.boom3r.bungeeapi.commands.GlobalKickCMD;
 import net.boom3r.bungeeapi.commands.HubCMD;
 import net.boom3r.bungeeapi.commands.MaintenanceCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
+import net.boom3r.bungeeapi.commands.group.GroupCMD;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
 import net.boom3r.bungeeapi.core.managers.*;
@@ -39,12 +40,16 @@ public final class BungeeAPI extends Plugin {
     public static NetworkManager networkManager;
     private ScheduledRunner runner;
     public static boolean whitelistEnabled = false;
+    public static RedisManager redisManager;
+    public static boolean redisEnabled = false;
+    public static LogManager bungeeLogger;
 
     @Override
     public void onEnable() {
         // Démarrage du plugin
         bungeeInstance = this;
         logger = getLogger();
+        bungeeLogger = new LogManager();
 
         // Chargement de la configuration
         confManager = new ConfManager(bungeeInstance);
@@ -53,7 +58,7 @@ public final class BungeeAPI extends Plugin {
         } catch (IOException e) {
             logger.info(e.getMessage());
         }
-
+        bungeeLogger.Info("Chargement des Listeners");
         // Enregistrement des listeners
         getProxy().getPluginManager().registerListener(bungeeInstance, new BungeeListeners());
         getProxy().getPluginManager().registerListener(bungeeInstance, new MOTDListener());
@@ -61,6 +66,7 @@ public final class BungeeAPI extends Plugin {
         getProxy().getPluginManager().registerCommand(bungeeInstance, new ServerManagerCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new MaintenanceCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new GlobalKickCMD());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new GroupCMD());
 
         // Création de la pool DB
         dataSourcePool = new HConnection().openPool(
@@ -71,6 +77,11 @@ public final class BungeeAPI extends Plugin {
                 confManager.getConfig().getString("database.mysql.password")
         );
 
+        //Connection Redis
+        redisManager = new RedisManager("localhost", 6379, null);
+        if (redisManager != null) {
+            redisEnabled = true;
+        }
         networkManager = new NetworkManager();
 
         // Chargement du serveur Manager
@@ -86,11 +97,18 @@ public final class BungeeAPI extends Plugin {
 
         // je sais pas
         getServerList();
+
+        // Redis
+        redisManager.save("server_list", serverManager.getServerlist());
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        if(redisEnabled){
+            bungeeLogger.DebugV("Fermeture de la connexion Redis",2);
+            redisManager.close();
+        }
     }
 
 
@@ -126,7 +144,7 @@ public final class BungeeAPI extends Plugin {
             ResultSet result = statement.executeQuery();
             while (result.next()) {
                 if(result.getBoolean("status")){
-                    LogManager.Info("Mode Maintenance Activé");
+                    bungeeLogger.Info("Mode Maintenance Activé");
                     maintenance = true;
                 } else {
                     maintenance = false;
@@ -153,6 +171,10 @@ public final class BungeeAPI extends Plugin {
     public void stopBungeeCord(){
         getLogger().severe("Arrêt du serveur BungeeCord...");
         ProxyServer.getInstance().stop();
+    }
+
+    public NetworkManager getNetworkManager(){
+        return networkManager;
     }
 
 }

@@ -8,8 +8,13 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
+
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 
 public class NetworkUserManager {
+
 
     public boolean updateNetworkUserDB(NetworkUser user) {
         boolean retour = false;
@@ -25,10 +30,10 @@ public class NetworkUserManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                LogManager.Admin("Serveur enregistré");
+                bungeeLogger.Admin("Serveur enregistré");
                 return true;
             } else {
-                LogManager.Admin("Problème dans l'ajout du serveur");
+                bungeeLogger.Admin("Problème dans l'ajout du serveur");
                 return false;
             }
 
@@ -37,6 +42,8 @@ public class NetworkUserManager {
         }
         return false;
     }
+
+
 
 
 }

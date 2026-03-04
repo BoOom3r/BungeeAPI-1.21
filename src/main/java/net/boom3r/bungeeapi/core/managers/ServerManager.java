@@ -57,6 +57,10 @@ public class ServerManager {
 
     }
 
+    public static Map<String, ServerObject> getServerlist() {
+        return serverlist;
+    }
+
     public static void initServerList() {
 
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();

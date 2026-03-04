@@ -13,6 +13,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.Locale;
 
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
 import static net.boom3r.bungeeapi.BungeeAPI.whitelistEnabled;
 import static net.boom3r.bungeeapi.core.managers.NetworkSysEvent.AddEvent;
 
@@ -45,7 +46,7 @@ public class BungeeListeners implements Listener {
             if ((player.hasPermission("bungeeAPI.maintenance." + event.getTarget().getName().toLowerCase(Locale.ROOT))) || (player.hasPermission("bungeeAPI.maintenance.global"))) {
 
                 NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString());
-
+                newUser.setOnline();
                 AddEvent("BungeeConMaint",
                         event.getPlayer().getUniqueId().toString(),
                         "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}"
@@ -56,7 +57,7 @@ public class BungeeListeners implements Listener {
             }
         } else {
             NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
-
+            newUser.setOnline();
             AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
 
         }
@@ -65,7 +66,7 @@ public class BungeeListeners implements Listener {
     @EventHandler
     public void onPostLogin(PreLoginEvent event) {
 
-        BungeeAPI.bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getConnection().getSocketAddress() + " a tenté la co !"));
+        bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getConnection().getSocketAddress() + " a tenté la co !"));
         AddEvent("BungeePreCon", "NO_OWNER", "{\"ip\": " +event.getConnection().getSocketAddress().toString().substring(1, event.getConnection().getSocketAddress().toString().indexOf(':'))+"}");
     }
 
@@ -74,19 +75,28 @@ public class BungeeListeners implements Listener {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             player.sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " nous a quitté..."));
         }
+        NetworkUser user = bungeeInstance.getNetworkManager().networkUserList.get(event.getPlayer().getUniqueId());
+        user.setOffline();
+        if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user)){
+            if (bungeeInstance.getNetworkManager().networkGroupManager.isGroupOwner(user)){
+                // transfert du lead
+            } else {
+                bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user).quitGroup(user);
+                bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
+            }
+        }
     }
 
     @EventHandler
     public void on(ServerSwitchEvent event) {
         if(event.getFrom() != null){
-            BungeeAPI.bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()));
+            bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()));
         }
     }
 
     @EventHandler
     public void on(ServerKickEvent event) {
-        BungeeAPI.bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " a été kické de " + event.getKickedFrom()));
+        bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " a été kické de " + event.getKickedFrom()));
     }
-
 
 }

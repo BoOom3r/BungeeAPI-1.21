@@ -16,3 +16,6 @@ commands:
   kick:
     description: Permit to kick
     permission: bungeeAPI.modo.kick
+  group:
+    description: Create a group
+    permission: bungeeAPI.group

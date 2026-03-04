@@ -14,14 +14,14 @@ import static net.boom3r.bungeeapi.core.managers.MessengerManager.sendToAdmins;
 public class LogManager {
     public static Logger logger = BungeeAPI.bungeeInstance.getLogger();
 
-    public static void DebugV(String msg, int level){
-        if((DEBUG)&&(DEBUGLVL>level)){
+    public void DebugV(String msg, int level){
+        if((DEBUG)&&(DEBUGLVL>=level)){
             logger.info(PREFIX+"[DEBUG] -> "+msg);
         }
     }
 
-    public static void Info(String msg){
-        logger.info(PREFIX+"[INFO] -> "+msg);
+    public void Info(String msg){
+        //logger.info(PREFIX+"[INFO] -> "+msg);
         ComponentBuilder msgConsole = new ComponentBuilder("[INFO]")
                 .color(ChatColor.BLUE)
                 .append("")
@@ -31,15 +31,15 @@ public class LogManager {
         BungeeAPI.bungeeInstance.getProxy().getConsole().sendMessage(msgConsole.create());
     }
 
-    public static void Err(String msg){
+    public void Err(String msg){
         logger.severe(PREFIX+"[INFO] -> "+msg);
     }
 
-    public static void Warn(String msg){
+    public void Warn(String msg){
         logger.warning(PREFIX+"[INFO] -> "+msg);
     }
 
-    public static void Admin(String msg){
+    public void Admin(String msg){
         logger.info(ChatColor.RED+"[ADMIN]"+ChatColor.RESET+" -> "+msg);
         sendToAdmins(msg);
     }

@@ -1,8 +1,12 @@
 package net.boom3r.bungeeapi.core.objects;
 
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
+
 import java.util.UUID;
 
 import static net.boom3r.bungeeapi.BungeeAPI.networkManager;
+import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
 
 public class NetworkUser {
 
@@ -12,6 +16,8 @@ public class NetworkUser {
     private String ip;
     private boolean online;
     private boolean isLinked;
+    private ServerObject actualServer;
+    private ServerObject lastServer;
 
     public NetworkUser(UUID uuid, String name, String ip, boolean online, boolean isLinked) {
         this.uuid = uuid;
@@ -26,6 +32,7 @@ public class NetworkUser {
         this.uuid = uuid;
         this.name = name;
         this.ip = ip;
+
         networkManager.addNetworkUser(uuid, this);
 
     }
@@ -48,5 +55,27 @@ public class NetworkUser {
 
     public boolean isOnline() {
         return online;
+    }
+
+    public void setOnline() {
+        this.online = true;
+    }
+
+    public void setOffline() {
+        this.online = false;
+    }
+
+    public void setLinked(boolean linked) {
+        isLinked = linked;
+    }
+
+    public void sendMessage(String msg) {
+        ProxyServer.getInstance().getPlayer(this.uuid).sendMessage(new TextComponent("§b[SYSTEM]§c[System Chat] §f" + msg));
+    }
+
+    public NetworkUser getFromRedis(UUID uuid){
+        NetworkUser nUser = null;
+        nUser = redisManager.load("network_user:"+uuid, NetworkUser.class);
+        return nUser;
     }
 }

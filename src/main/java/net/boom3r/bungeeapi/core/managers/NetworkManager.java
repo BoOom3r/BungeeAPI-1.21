@@ -4,18 +4,26 @@ import net.boom3r.bungeeapi.core.objects.NetworkUser;
 
 import java.util.*;
 
+import static net.boom3r.bungeeapi.BungeeAPI.redisEnabled;
+import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
+
 public class NetworkManager {
 
     public Map<UUID, NetworkUser> networkUserList;
     public NetworkUserManager networkUserManager;
+    public NetworkGroupManager networkGroupManager;
 
     public NetworkManager() {
         networkUserList = new HashMap<>();
         networkUserManager = new NetworkUserManager();
+        networkGroupManager = new NetworkGroupManager();
     }
     public void addNetworkUser(UUID uuid, NetworkUser nUser){
         networkUserManager.updateNetworkUserDB(nUser);
         networkUserList.put(uuid, nUser);
+        if (redisEnabled){
+            redisManager.save("network_user_list",networkUserList);
+        }
     }
 
     public void removeNetworkUser(UUID uuid){
@@ -33,5 +41,6 @@ public class NetworkManager {
     public Map<UUID, NetworkUser> getNetworkUserMap(){
         return networkUserList;
     }
+
 
 }
