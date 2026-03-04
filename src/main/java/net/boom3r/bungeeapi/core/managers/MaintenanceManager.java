@@ -23,7 +23,7 @@ public class MaintenanceManager {
             BungeeAPI.maintenance = false;
             updateDB("global",false);
         } else {
-            // TODO ServerObject.maintenance off
+
             updateDB(server,false);
         }
     }

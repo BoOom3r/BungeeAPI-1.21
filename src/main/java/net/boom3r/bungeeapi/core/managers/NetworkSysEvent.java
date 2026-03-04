@@ -21,7 +21,7 @@ public class NetworkSysEvent {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                LogManager.Admin("Event enregistré");
+                //LogManager.Admin("Event enregistré");
                 return true;
             } else {
                 LogManager.Admin("Problème dans l'ajout de l'event");

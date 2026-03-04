@@ -1,6 +1,7 @@
 package net.boom3r.bungeeapi.core.listeners;
 
 import net.boom3r.bungeeapi.BungeeAPI;
+import net.boom3r.bungeeapi.core.managers.LogManager;
 import net.boom3r.bungeeapi.core.managers.WhiteListManager;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.md_5.bungee.api.ProxyServer;
@@ -23,16 +24,16 @@ public class BungeeListeners implements Listener {
             if (WhiteListManager.isWhiteListed(event.getPlayer())) {
                 for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                     player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
-                    AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString()+", \"player\": "+ event.getPlayer().getName()+"}");
+                    AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
                 }
             } else {
                 event.getPlayer().disconnect(new TextComponent("Désolé mais tu n'est pas sur la whitelist !"));
-                AddEvent("BungeeBlockWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString()+", \"player\": "+ event.getPlayer().getName()+"}");
+                AddEvent("BungeeBlockWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
             }
         } else {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
-                AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString()+", \"player\": "+ event.getPlayer().getName()+"}");
+                AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
             }
         }
     }
@@ -42,13 +43,22 @@ public class BungeeListeners implements Listener {
         ProxiedPlayer player = event.getPlayer();
         if(BungeeAPI.maintenance) {
             if ((player.hasPermission("bungeeAPI.maintenance." + event.getTarget().getName().toLowerCase(Locale.ROOT))) || (player.hasPermission("bungeeAPI.maintenance.global"))) {
+
                 NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString());
 
-                AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString()+", \"player\": "+ event.getPlayer().getName()+"}");
+                AddEvent("BungeeConMaint",
+                        event.getPlayer().getUniqueId().toString(),
+                        "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}"
+                );
                 return;
             } else {
                 player.disconnect(BungeeAPI.getFormatedMessage("Désolé, tu n'es pas autorisé à rejoindre pendant la maintenance"));
             }
+        } else {
+            NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
+
+            AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
+
         }
     }
 
@@ -56,7 +66,7 @@ public class BungeeListeners implements Listener {
     public void onPostLogin(PreLoginEvent event) {
 
         BungeeAPI.bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getConnection().getSocketAddress() + " a tenté la co !"));
-        AddEvent("BungeePreCon", "NO_OWNER", "{\"ip\": " +event.getConnection().getSocketAddress().toString()+"}");
+        AddEvent("BungeePreCon", "NO_OWNER", "{\"ip\": " +event.getConnection().getSocketAddress().toString().substring(1, event.getConnection().getSocketAddress().toString().indexOf(':'))+"}");
     }
 
     @EventHandler

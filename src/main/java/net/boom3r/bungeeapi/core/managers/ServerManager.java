@@ -82,6 +82,7 @@ public class ServerManager {
                                         " --> " + actualServer.getMaintenance()
                         ).create()
                 );
+                ProxyServer.getInstance().getServers().put(actualServer.getName(), ProxyServer.getInstance().constructServerInfo(actualServer.getName(), new InetSocketAddress(actualServer.getAddress(),actualServer.getPort()), actualServer.getMotd(), false));
                 //listRetour.add(result.getString("name"));
             }
 
