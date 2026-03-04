@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+
 public class NetworkSysEvent {
 
     public static boolean AddEvent(String name, String owner, String info){
@@ -24,7 +26,7 @@ public class NetworkSysEvent {
                 //LogManager.Admin("Event enregistré");
                 return true;
             } else {
-                LogManager.Admin("Problème dans l'ajout de l'event");
+                bungeeLogger.Admin("Problème dans l'ajout de l'event");
                 return false;
             }
 
