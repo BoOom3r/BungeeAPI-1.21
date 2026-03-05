@@ -82,6 +82,7 @@ public class BungeeListeners implements Listener {
             bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
             bungeeLogger.DebugV("le joueur a quitté le groupe",3);
         }
+        redisManager.delete("network_user:"+user.getUuid());
     }
 
 

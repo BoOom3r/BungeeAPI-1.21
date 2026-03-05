@@ -23,6 +23,7 @@ public class NetworkManager {
         networkUserList.put(uuid, nUser);
         if (redisEnabled){
             redisManager.save("network_user_list",networkUserList);
+            redisManager.save("network_user:"+uuid,nUser);
         }
     }
 
