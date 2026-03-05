@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 public final class BungeeAPI extends Plugin {
     public static BungeeAPI bungeeInstance;
-    public static String PREFIX = ChatColor.AQUA + "[BungeeAPI] -> ";
+    public static String PREFIX = ChatColor.AQUA + "[BungeeAPI] -> "+ChatColor.RESET;
     public static int DEBUGLVL = 2;
     public static Boolean DEBUG = true;
     public static HikariDataSource dataSourcePool;
@@ -58,6 +58,9 @@ public final class BungeeAPI extends Plugin {
         } catch (IOException e) {
             logger.info(e.getMessage());
         }
+        DEBUGLVL = confManager.getConfig().getInt("logging.verbose");
+        bungeeLogger.Info("Verbose configuré sur "+DEBUGLVL);
+
         bungeeLogger.Info("Chargement des Listeners");
         // Enregistrement des listeners
         getProxy().getPluginManager().registerListener(bungeeInstance, new BungeeListeners());
@@ -97,6 +100,9 @@ public final class BungeeAPI extends Plugin {
 
         // je sais pas
         getServerList();
+
+        // Création channel plugin message
+        getProxy().registerChannel( "bungee:group" );
 
         // Redis
         redisManager.save("server_list", serverManager.getServerlist());

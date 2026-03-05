@@ -6,6 +6,7 @@ import net.boom3r.bungeeapi.core.managers.LogManager;
 import net.boom3r.bungeeapi.core.managers.NetworkGroupManager;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkGroup {
     private UUID groupUUID;
-    private List<NetworkUser> playerList;
+    private List<NetworkUser> playerList = new ArrayList<>();;
     private NetworkUser groupOwner;
     private String groupName;
     private String groupTag;
@@ -37,15 +38,23 @@ public class NetworkGroup {
 
     public boolean quitGroup(NetworkUser user){
         if (user == groupOwner) {
-            bungeeLogger.Admin(user.getName()+" vient de quitter un groupe dont il était leader");
-            //dissolution du groupe ou transfert lead
-            BungeeAPI.redisManager.save("group:"+groupUUID,this);
+            bungeeLogger.DebugV(user.getName()+" vient de quitter un groupe dont il était leader",2);
+            if (playerList.size()-1 > 0){
+                bungeeLogger.DebugV("Transfert du lead",2);
+                //transfert lead
+                //BungeeAPI.redisManager.save("group:"+groupUUID,this);
+            } else {
+                bungeeLogger.DebugV("Destruction du groupe : plus assez de monde",2);
+                this.getNetworkGroupManager().toDestroy.add(this);
+                BungeeAPI.redisManager.delete("group:"+groupUUID);
+            }
         } else {
             playerList.remove(user);
             if (playerList.size() == 0){
                 //destruction du groupe
-                bungeeLogger.Admin("Destruction du groupe");
+                bungeeLogger.DebugV("Destruction du groupe : plus personne",2);
                 this.getNetworkGroupManager().toDestroy.add(this);
+                BungeeAPI.redisManager.delete("group:"+groupUUID);
             }
         }
         return true;

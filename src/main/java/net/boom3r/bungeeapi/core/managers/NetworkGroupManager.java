@@ -1,14 +1,14 @@
 package net.boom3r.bungeeapi.core.managers;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.boom3r.bungeeapi.core.objects.NetworkGroup;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static net.boom3r.bungeeapi.BungeeAPI.redisEnabled;
 import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
@@ -19,6 +19,7 @@ public class NetworkGroupManager {
 
     NetworkGroupManager(){
         this.networkGroupList = new HashMap<>();
+        toDestroy = new ArrayList<>();
     }
 
     public boolean createGroup(NetworkUser owner, @Nullable String groupName, @Nullable String groupTag){
@@ -49,15 +50,11 @@ public class NetworkGroupManager {
         return false;
     }
 
-    public boolean destroyGroup(){
-        List<NetworkGroup> cloneTmp = toDestroy;
-        for (NetworkGroup networkGroup : cloneTmp){
-            networkGroupList.remove(networkGroup.getGroupUUID());
-            toDestroy.remove(networkGroup);
-            networkGroup = null;
-
+    public boolean destroyGroup() {
+        for (NetworkGroup ng : toDestroy) {
+            networkGroupList.remove(ng.getGroupUUID());
         }
-
+        toDestroy.clear();
         return true;
     }
 
@@ -68,6 +65,25 @@ public class NetworkGroupManager {
             }
         }
         return null;
+    }
+
+    public void openGroupMenu(ProxiedPlayer player)
+    {
+        Collection<ProxiedPlayer> networkPlayers = ProxyServer.getInstance().getPlayers();
+        // perform a check to see if globally are no players
+        if ( networkPlayers == null || networkPlayers.isEmpty() )
+        {
+            return;
+        }
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF( "GroupMenuOpen" ); // the channel could be whatever you want
+        out.writeUTF(player.getUniqueId().toString()); // this data could be whatever you want
+
+
+        // we send the data to the server
+        // using ServerInfo the packet is being queued if there are no players in the server
+        // using only the server to send data the packet will be lost if no players are in it
+        player.getServer().getInfo().sendData( "bungee:group", out.toByteArray() );
     }
 
 

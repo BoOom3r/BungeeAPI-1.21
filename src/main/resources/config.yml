@@ -8,3 +8,6 @@ database:
     user: user
     password: password
     database: database
+
+logging:
+  verbose: 2

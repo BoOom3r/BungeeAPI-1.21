@@ -16,7 +16,7 @@ public class LogManager {
 
     public void DebugV(String msg, int level){
         if((DEBUG)&&(DEBUGLVL>=level)){
-            logger.info(PREFIX+"[DEBUG] -> "+msg);
+            logger.info(ChatColor.AQUA +"[DEBUG] -> "+msg);
         }
     }
 

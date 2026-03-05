@@ -34,6 +34,14 @@ public class RedisManager {
         }
     }
 
+    public boolean delete(String key) {
+        if (!redisEnabled) return false;
+        try (Jedis jedis = pool.getResource()) {
+            jedis.del(key);
+            return true;
+        }
+    }
+
     public void close() {
         pool.close();
     }

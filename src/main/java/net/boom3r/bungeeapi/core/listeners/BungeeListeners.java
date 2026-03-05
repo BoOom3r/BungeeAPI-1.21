@@ -13,8 +13,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.Locale;
 
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
-import static net.boom3r.bungeeapi.BungeeAPI.whitelistEnabled;
+import static net.boom3r.bungeeapi.BungeeAPI.*;
 import static net.boom3r.bungeeapi.core.managers.NetworkSysEvent.AddEvent;
 
 public class BungeeListeners implements Listener {
@@ -78,14 +77,13 @@ public class BungeeListeners implements Listener {
         NetworkUser user = bungeeInstance.getNetworkManager().networkUserList.get(event.getPlayer().getUniqueId());
         user.setOffline();
         if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user)){
-            if (bungeeInstance.getNetworkManager().networkGroupManager.isGroupOwner(user)){
-                // transfert du lead
-            } else {
-                bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user).quitGroup(user);
-                bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
-            }
+            bungeeLogger.DebugV("le joueur était dans un groupe : ",3);
+            bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user).quitGroup(user);
+            bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
+            bungeeLogger.DebugV("le joueur a quitté le groupe",3);
         }
     }
+
 
     @EventHandler
     public void on(ServerSwitchEvent event) {
