@@ -57,6 +57,7 @@ public class BungeeListeners implements Listener {
         } else {
             NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
             newUser.setOnline();
+
             AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
 
         }

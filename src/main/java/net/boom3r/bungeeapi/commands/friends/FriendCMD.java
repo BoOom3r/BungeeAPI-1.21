@@ -3,15 +3,18 @@ package net.boom3r.bungeeapi.commands.friends;
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.core.utils.DebugUtils;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+import static net.boom3r.bungeeapi.commands.friends.FriendManager.*;
 
 public class FriendCMD extends Command {
     public FriendCMD() {
-        super("group", "bungeeAPI.group");
+        super("group", "bungeeAPI.friend");
     }
 
     @Override
@@ -25,28 +28,49 @@ public class FriendCMD extends Command {
             }
 
             if (args.length == 2) {
-                String groupName = args[0];
-                bungeeLogger.DebugV("La commande group à été faite",2);
-                if (args[0].length() < 3 || args[0].length() > 12) {
-                    nSender.sendMessage("Le nom de ton groupe doit faire plus de 3 caractères et moins de 12");
-                } else {
-                    BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, groupName, null);
-                }
+                    wrongUse(nSender);
             }
 
             if (args.length == 3) {
-                String groupName = args[0];
-                String groupTag = args[1];
-                if (args[0].length() < 3 || args[0].length() > 12 || groupTag.length()<3 || groupTag.length() > 5) {
-                    nSender.sendMessage("Le nom de ton groupe doit faire plus de 3 caractères et moins de 12. Celui de ton tag doit faire de 3 à 5 caractères.");
-                } else {
-                    BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, groupName, groupTag);
+                String subCmd = args[0];
+                String pseudo = args[1];
+
+                switch (subCmd){
+                    case "add":
+                        // Envoie d'une invite à l'ami
+                        // Vérification si l'ami a déjà envoyé une invitation
+                        if (isFriend(nSender.getUuid(), ProxyServer.getInstance().getPlayer(pseudo).getUniqueId())) {
+                            nSender.sendMessage("Tu es déjà ami avec ce joueur.");
+                            return;
+                        }
+                        if (isPendingFriend(nSender.getUuid(), ProxyServer.getInstance().getPlayer(pseudo).getUniqueId())){
+                            nSender.sendMessage("Tu as déjà ami une demande d'ami en attente pour ce joueur.");
+                            return;
+                        }
+
+                        sendInvite(((ProxiedPlayer) sender).getUniqueId(), ProxyServer.getInstance().getPlayer(pseudo).getUniqueId());
+                        break;
+                    case "del":
+                        // Suppression du lien dans la base de donnée
+                        removeFromDb(ProxyServer.getInstance().getPlayer(pseudo).getUniqueId());
+                        break;
+                    case "list":
+                        // Suppression du lien dans la base de donnée
+                        getOtherFriendList(nSender, ProxyServer.getInstance().getPlayer(pseudo).getUniqueId());
+                        break;
+
+                    default:
+                        wrongUse(nSender);
                 }
+
             }
-
-
-
-
+            if (args.length > 3){
+                wrongUse(nSender);
+            }
         }
+    }
+
+    private void wrongUse(NetworkUser nSender){
+        nSender.sendMessage("Mauvaise utilisation de la commande. Ajouter un ami : /friend add <pseudo>. Pour retirer un ami : /friend del <pseudo>");
     }
 }

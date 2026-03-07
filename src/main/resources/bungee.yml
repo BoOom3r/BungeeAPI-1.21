@@ -19,3 +19,6 @@ commands:
   group:
     description: Create a group
     permission: bungeeAPI.group
+  friend:
+    description: Create a friend network
+    permission: bungeeAPI.friend
