@@ -8,6 +8,7 @@ import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.commands.group.GroupCMD;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
+import net.boom3r.bungeeapi.core.listeners.RedisPubSubListener;
 import net.boom3r.bungeeapi.core.managers.*;
 import net.boom3r.bungeeapi.core.objects.NetworkConf;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
@@ -89,7 +90,11 @@ public final class BungeeAPI extends Plugin {
         if (redisManager != null) {
             redisEnabled = true;
         }
-        ProxyServer.getInstance().getScheduler().runAsync(this, new RedisManager.PubSubReaderTask(this));
+        if (redisEnabled) {
+            RedisPubSubListener listener = new RedisPubSubListener(this);
+            redisManager.subscribe("b3api-channel", listener);
+            //ProxyServer.getInstance().getScheduler().runAsync(this, new RedisManager.PubSubReaderTask(this));
+        }
 
         networkManager = new NetworkManager();
         networkConf = new NetworkConf(this);

@@ -65,24 +65,21 @@ public class RedisManager {
             };
         }
     }
-    public static void createSubChannelReceiver(String channel) {
-        // Connect to Redis server
-            // Define a new JedisPubSub instance to handle messages
-            JedisPubSub pubSub = new JedisPubSub() {
-                @Override
-                public void onMessage(String channel, String message) {
-                    bungeeLogger.DebugV("Received message from channel " + channel + ": " + message,2);
-                }
-            };
-            // Subscribe to the "my-channel" channel
-            redisManager.pool.getResource().subscribe(pubSub, channel);
 
+    public void publish(String channel, String json) {
+        if (!redisEnabled) return;
+        try (Jedis jedis = pool.getResource()) {
+            jedis.publish(channel, json);
+        }
     }
 
-    public static void sendPubSub(String channel, String message) {
-        // Connect to Redis server
-        // Define a new JedisPubSub instance to handle messages
-        redisManager.pool.getResource().publish(channel, message);
-        // Subscribe to the "my-channel" channel
+    public void subscribe(String channel, JedisPubSub listener) {
+        if (!redisEnabled) return;
+        // exécuter sur un thread séparé car subscribe() est bloquant
+        new Thread(() -> {
+            try (Jedis jedis = pool.getResource()) {
+                jedis.subscribe(listener, channel);
+            }
+        }).start();
     }
 }
