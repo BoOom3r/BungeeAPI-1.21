@@ -194,7 +194,11 @@ public final class BungeeAPI extends Plugin {
         return getNetworkManager().networkUserList.get(uuid);
     }
 
-    public static HikariDataSource getDataSourcePool() {
+    public HikariDataSource getDataSourcePool() {
         return dataSourcePool;
+    }
+
+    public NetworkConf getNetworkConf() {
+        return networkConf;
     }
 }

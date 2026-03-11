@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static net.boom3r.bungeeapi.BungeeAPI.networkManager;
-import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
+import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkUser {
 
@@ -77,7 +76,7 @@ public class NetworkUser {
     }
 
     public void sendMessage(String msg) {
-        ProxyServer.getInstance().getPlayer(this.uuid).sendMessage(new TextComponent("§b[SYSTEM]§c[System Chat] §f" + msg));
+        ProxyServer.getInstance().getPlayer(this.uuid).sendMessage(new TextComponent("§b["+bungeeInstance.getNetworkConf().getNetworkName()+"]§c[System Chat] §f" + msg));
     }
 
     public NetworkUser getFromRedis(UUID uuid){

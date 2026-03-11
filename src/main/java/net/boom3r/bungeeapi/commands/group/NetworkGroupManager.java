@@ -95,11 +95,12 @@ public class NetworkGroupManager {
     }
 
     public boolean sendInvite(NetworkUser sender, NetworkUser receiver) {
-        if (isGroupOwner(bungeeInstance.getNetworkManager().networkUserList.get(sender))) {
-            if(!isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(receiver))){
+        // Est ce que le sender est propriétaire du groupe
+        if (isGroupOwner(bungeeInstance.getNetworkManager().networkUserList.get(sender.getUuid()))) {
+            if(!isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(receiver.getUuid()))){
                 try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement(
-                             "INSERT INTO network_request ('sender', 'receiver', 'type', 'state', 'active') VALUES (?,?,?,1,1)"
+                             "INSERT INTO network_request VALUES (?,?,?,1,1)"
                      )
                 ) {
                     statement.setString(1, sender.getUuid().toString());
@@ -112,6 +113,7 @@ public class NetworkGroupManager {
                     return true;
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    bungeeLogger.Warn(e.toString());
                     return false;
                 }
             } else {
