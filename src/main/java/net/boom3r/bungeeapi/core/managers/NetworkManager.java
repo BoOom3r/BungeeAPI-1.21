@@ -1,5 +1,6 @@
 package net.boom3r.bungeeapi.core.managers;
 
+import net.boom3r.bungeeapi.commands.group.NetworkGroupManager;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 
 import java.util.*;

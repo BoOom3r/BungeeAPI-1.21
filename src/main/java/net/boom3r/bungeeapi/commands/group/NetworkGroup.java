@@ -1,9 +1,8 @@
-package net.boom3r.bungeeapi.core.objects;
+package net.boom3r.bungeeapi.commands.group;
 
 import com.google.gson.Gson;
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.managers.LogManager;
-import net.boom3r.bungeeapi.core.managers.NetworkGroupManager;
+import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,6 +27,15 @@ public class NetworkGroup {
         this.networkGroupManager = BungeeAPI.networkManager.networkGroupManager;
         playerList.add(groupOwner);
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
+        if (groupName != null){
+            if (groupTag != null){
+                groupOwner.sendMessage("Le groupe "+groupName+ " vient d'être créé ! Son tag est "+groupTag);
+            } else {
+                groupOwner.sendMessage("Le groupe " + groupName + " vient d'être créé !");
+            }
+        } else {
+            groupOwner.sendMessage("Le groupe vient d'être créé !");
+        }
     }
 
     public boolean joinGroup(NetworkUser user){
@@ -95,5 +103,14 @@ public class NetworkGroup {
             redisManager.save(this.getGroupUUID().toString(),this);
         }
         return false;
+    }
+
+    public void transfert(NetworkUser oldOwner, NetworkUser networkUser){
+        this.groupOwner = networkUser;
+        this.groupUUID = networkUser.getUuid();
+        networkGroupManager.networkGroupList.remove(oldOwner.getUuid());
+        BungeeAPI.redisManager.delete("group:"+oldOwner.getUuid());
+        networkGroupManager.networkGroupList.put(networkUser.getUuid(), this);
+        BungeeAPI.redisManager.save("group:"+networkUser.getUuid(),this);
     }
 }

@@ -9,6 +9,8 @@ import net.boom3r.bungeeapi.commands.group.GroupCMD;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
 import net.boom3r.bungeeapi.core.managers.*;
+import net.boom3r.bungeeapi.core.objects.NetworkConf;
+import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.runnables.ScheduledRunner;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public final class BungeeAPI extends Plugin {
@@ -43,6 +46,7 @@ public final class BungeeAPI extends Plugin {
     public static RedisManager redisManager;
     public static boolean redisEnabled = false;
     public static LogManager bungeeLogger;
+    public static NetworkConf networkConf;
 
     @Override
     public void onEnable() {
@@ -85,7 +89,10 @@ public final class BungeeAPI extends Plugin {
         if (redisManager != null) {
             redisEnabled = true;
         }
+        ProxyServer.getInstance().getScheduler().runAsync(this, new RedisManager.PubSubReaderTask(this));
+
         networkManager = new NetworkManager();
+        networkConf = new NetworkConf(this);
 
         // Chargement du serveur Manager
         serverManager = new ServerManager();
@@ -183,4 +190,11 @@ public final class BungeeAPI extends Plugin {
         return networkManager;
     }
 
+    public NetworkUser getNetworkUser(UUID uuid){
+        return getNetworkManager().networkUserList.get(uuid);
+    }
+
+    public static HikariDataSource getDataSourcePool() {
+        return dataSourcePool;
+    }
 }

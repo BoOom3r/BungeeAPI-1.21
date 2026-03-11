@@ -1,23 +1,26 @@
-package net.boom3r.bungeeapi.core.managers;
+package net.boom3r.bungeeapi.commands.group;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.boom3r.bungeeapi.core.objects.NetworkGroup;
+import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jspecify.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
-import static net.boom3r.bungeeapi.BungeeAPI.redisEnabled;
-import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 
 public class NetworkGroupManager {
      Map<UUID, NetworkGroup > networkGroupList;
      public List<NetworkGroup> toDestroy;
 
-    NetworkGroupManager(){
+    public NetworkGroupManager(){
         this.networkGroupList = new HashMap<>();
         toDestroy = new ArrayList<>();
     }
@@ -35,6 +38,7 @@ public class NetworkGroupManager {
     public boolean isInExistingGroup(NetworkUser user){
         for (NetworkGroup networkGroup : networkGroupList.values()){
             if (networkGroup.isInGroup(user)){
+
                 return true;
             }
         }
@@ -44,11 +48,15 @@ public class NetworkGroupManager {
     public boolean isGroupOwner(NetworkUser user){
         for (NetworkGroup networkGroup : networkGroupList.values()){
             if (networkGroup.getGroupOwner() == user){
+                bungeeLogger.DebugV(" Group détail : "+networkGroup.getGroupUUID()+" avec Owner "+networkGroup.getGroupOwner().getName() +" - "+ networkGroup.getGroupOwner(),3);
+
                 return true;
             }
         }
         return false;
     }
+
+
 
     public boolean destroyGroup() {
         for (NetworkGroup ng : toDestroy) {
@@ -86,6 +94,39 @@ public class NetworkGroupManager {
         player.getServer().getInfo().sendData( "bungee:group", out.toByteArray() );
     }
 
+    public boolean sendInvite(NetworkUser sender, NetworkUser receiver) {
+        if (isGroupOwner(bungeeInstance.getNetworkManager().networkUserList.get(sender))) {
+            if(!isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(receiver))){
+                try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
+                     PreparedStatement statement = sql.prepareStatement(
+                             "INSERT INTO network_request ('sender', 'receiver', 'type', 'state', 'active') VALUES (?,?,?,1,1)"
+                     )
+                ) {
+                    statement.setString(1, sender.getUuid().toString());
+                    statement.setString(2, receiver.getUuid().toString());
+                    statement.setString(3, "GROUP");
+                    statement.executeUpdate();
+                    bungeeLogger.DebugV("Invitation de groupe envoyée !",2);
+                    sender.sendMessage("Invitation de groupe envoyée à "+receiver.getName());
+                    // pubsub
+                    return true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            } else {
+                bungeeLogger.DebugV("Le joueur "+receiver+" est déjà dans un groupe", 2);
+                sender.sendMessage("Le joueur "+receiver.getName()+" est déjà membre d'un groupe : tu ne peux pas l'inviter.");
+                return false;
+            }
+        } else {
+            bungeeLogger.DebugV("Le joueur "+sender+" n'est pas propriétaire du groupe", 2);
+            sender.sendMessage("Tu n'es pas propriétaire d'un groupe : tu ne peux pas inviter de joueurs.");
+            return false;
+        }
+    }
 
-
+    public Map<UUID, NetworkGroup> getNetworkGroupList() {
+        return networkGroupList;
+    }
 }
