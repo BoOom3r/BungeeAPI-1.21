@@ -9,6 +9,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
+import java.util.UUID;
+
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.boom3r.bungeeapi.BungeeAPI.networkManager;
 
@@ -90,13 +92,29 @@ public class GroupCMD extends Command {
             if (args[0].equalsIgnoreCase("destroy") || args[0].equalsIgnoreCase("delete") ) {
                 if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
                     bungeeLogger.DebugV("Destruction du groupe",3);
+                    if (args.length == 2){
+                        NetworkUser quitter = networkManager.networkUserList.get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                        if (quitter != null) {
+                            networkManager.networkGroupManager.getUserGroup(quitter).quitGroup(quitter);
+                        }
+                    } else {
+                        // TODO Mauvais usage
+
+                    }
+
                 }
             }
 
             // DEPART D UN GROUPE
             if (args[0].equalsIgnoreCase("quit")) {
                 if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
-                    bungeeLogger.DebugV("Destruction du groupe",3);
+                    bungeeLogger.DebugV("Départ du groupe - quit",3);
+                    if (args.length == 1){
+                        networkManager.networkGroupManager.getUserGroup(nSender).quitGroup(nSender);
+                    } else {
+                        // TODO Mauvais usage
+
+                    }
                 }
             }
 
@@ -181,6 +199,26 @@ public class GroupCMD extends Command {
                 }
             }
 
+            if (args[0].equalsIgnoreCase("join")) {
+                if (args.length == 2) {
+                    NetworkUser toJoin = networkManager.getNetworkUserMap().get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                    if (toJoin != null) {
+                        if (networkManager.networkGroupManager.isInExistingGroup(nSender)) {
+                            bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe", 3);
+                            return;
+                        }
+                        bungeeLogger.DebugV("Join du joueur " + nSender.getName() + " au groupe du joueur " + toJoin.getName(), 2);
+                        // Si joueur a une demande
+                        networkManager.networkGroupManager.getUserGroup(toJoin).joinGroup(nSender);
+
+                        //nSender.sendMessage("Création du groupe avec le nom "+args[1]);
+
+                    }
+
+                } else {
+                    // TODO le player n'a pas fait la bonne synthaxe
+                }
+            }
         }
     }
 }

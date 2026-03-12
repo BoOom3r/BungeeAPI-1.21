@@ -36,7 +36,6 @@ public final class BungeeAPI extends Plugin {
     public static int DEBUGLVL = 2;
     public static Boolean DEBUG = true;
     public static HikariDataSource dataSourcePool;
-    public static String networkPrefix = "[Network]";
     public static boolean maintenance = false;
     public static ConfManager confManager;
     public static Logger logger;
@@ -91,8 +90,8 @@ public final class BungeeAPI extends Plugin {
             redisEnabled = true;
         }
         if (redisEnabled) {
-            RedisPubSubListener listener = new RedisPubSubListener(this);
-            redisManager.subscribe("b3api-channel", listener);
+            //RedisPubSubListener listener = new RedisPubSubListener(this);
+            //redisManager.subscribe("b3api-channel", listener);
             //ProxyServer.getInstance().getScheduler().runAsync(this, new RedisManager.PubSubReaderTask(this));
         }
 

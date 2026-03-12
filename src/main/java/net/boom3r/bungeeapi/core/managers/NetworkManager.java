@@ -29,7 +29,13 @@ public class NetworkManager {
     }
 
     public void removeNetworkUser(UUID uuid){
+        //networkUserManager.updateNetworkUserDB(nUser);
         networkUserList.remove(uuid);
+        if (redisEnabled){
+            redisManager.save("network_user_list",networkUserList);
+            redisManager.delete("network_user:"+uuid);
+        }
+
     }
 
     public List<NetworkUser> getNetworkUserList(){

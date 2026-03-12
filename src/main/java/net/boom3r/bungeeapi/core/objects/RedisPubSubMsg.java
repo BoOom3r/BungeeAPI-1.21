@@ -9,5 +9,19 @@ public class RedisPubSubMsg {
         this.payload = payload;
     }
 
+    public String getType() {
+        return type;
+    }
 
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

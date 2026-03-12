@@ -24,7 +24,7 @@ public class NetworkGroup {
         this.groupUUID = groupOwner.getUuid();
         this.groupName = groupName;
         this.groupTag = groupTag;
-        this.networkGroupManager = BungeeAPI.networkManager.networkGroupManager;
+        this.networkGroupManager = networkManager.networkGroupManager;
         playerList.add(groupOwner);
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
         if (groupName != null){
@@ -40,7 +40,7 @@ public class NetworkGroup {
 
     public boolean joinGroup(NetworkUser user){
         playerList.add(user);
-        BungeeAPI.redisManager.save("group:"+groupUUID,this);
+        //BungeeAPI.redisManager.save("group:"+groupUUID,this);
         return true;
     }
 
@@ -53,6 +53,7 @@ public class NetworkGroup {
                 //BungeeAPI.redisManager.save("group:"+groupUUID,this);
             } else {
                 bungeeLogger.DebugV("Destruction du groupe : plus assez de monde",2);
+                networkGroupManager.removeInvite(user);
                 this.getNetworkGroupManager().toDestroy.add(this);
                 BungeeAPI.redisManager.delete("group:"+groupUUID);
             }
@@ -61,6 +62,7 @@ public class NetworkGroup {
             if (playerList.size() == 0){
                 //destruction du groupe
                 bungeeLogger.DebugV("Destruction du groupe : plus personne",2);
+
                 this.getNetworkGroupManager().toDestroy.add(this);
                 BungeeAPI.redisManager.delete("group:"+groupUUID);
             }

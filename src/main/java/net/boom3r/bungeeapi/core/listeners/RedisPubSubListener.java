@@ -1,6 +1,9 @@
 package net.boom3r.bungeeapi.core.listeners;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.RedisPubSubMsg;
 import net.md_5.bungee.api.ProxyServer;
@@ -18,14 +21,8 @@ public class RedisPubSubListener extends JedisPubSub {
 
     @Override
     public void onMessage(String channel, String message) {
-        // désérialiser votre message avec Gson
+        bungeeLogger.DebugV("Message PubSub reçu : " +message,3);
         RedisPubSubMsg msg = new Gson().fromJson(message, RedisPubSubMsg.class);
-
-        if (plugin instanceof net.md_5.bungee.api.plugin.Plugin bungee) {
-            ProxyServer.getInstance().getScheduler().runAsync(bungee, () -> {
-                // traiter msg : broadcast, téléportation, etc.
-                bungeeLogger.DebugV("Message reçu en PubSub : "+message, 2);
-            });
-        }
+        bungeeLogger.DebugV("Message MSG reçu : " + msg.getPayload(),2);
     }
 }

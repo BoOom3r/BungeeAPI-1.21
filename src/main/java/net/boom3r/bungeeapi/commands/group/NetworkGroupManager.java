@@ -108,8 +108,10 @@ public class NetworkGroupManager {
                     statement.setString(3, "GROUP");
                     statement.executeUpdate();
                     bungeeLogger.DebugV("Invitation de groupe envoyée !",2);
+                    bungeeInvite(sender.getUuid(),receiver.getUuid());
                     sender.sendMessage("Invitation de groupe envoyée à "+receiver.getName());
                     // pubsub
+
                     return true;
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -128,7 +130,54 @@ public class NetworkGroupManager {
         }
     }
 
+    public boolean removeInvite(NetworkUser sender){
+            if(isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(sender.getUuid()))){
+                try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
+                     PreparedStatement statement = sql.prepareStatement(
+                             "DELETE FROM network_request WHERE (sender = ? OR receiver = ?) AND type = ?"
+                     )
+                ) {
+                    statement.setString(1, sender.getUuid().toString());
+                    statement.setString(2, sender.getUuid().toString());
+                    statement.setString(3, "GROUP");
+                    statement.executeUpdate();
+                    bungeeLogger.DebugV("Suppression d'invitation de groupe  !",2);
+
+                    //sender.sendMessage("Suppression d'invitation de groupe  !");
+                    // pubsub
+
+                    return true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    bungeeLogger.Warn(e.toString());
+                    return false;
+                }
+            } else {
+                bungeeLogger.DebugV("Le joueur "+sender+" n'est pas dans un groupe", 2);
+                //sender.sendMessage("Le joueur "+receiver.getName()+" est déjà membre d'un groupe : tu ne peux pas l'inviter.");
+                return false;
+
+        }
+    }
+
     public Map<UUID, NetworkGroup> getNetworkGroupList() {
         return networkGroupList;
+    }
+
+    public void bungeeInvite(UUID owner, UUID player){
+        Collection<ProxiedPlayer> networkPlayers = ProxyServer.getInstance().getPlayers();
+        // perform a check to see if globally are no players
+        if ( networkPlayers == null || networkPlayers.isEmpty() )
+        {
+            return;
+        }
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF( "GroupInvite" ); // the channel could be whatever you want
+        out.writeUTF(owner+":"+player); // this data could be whatever you want
+
+        // we send the data to the server
+        // using ServerInfo the packet is being queued if there are no players in the server
+        // using only the server to send data the packet will be lost if no players are in it
+        ProxyServer.getInstance().getPlayer(player).getServer().getInfo().sendData( "bungee:group", out.toByteArray() );
     }
 }
