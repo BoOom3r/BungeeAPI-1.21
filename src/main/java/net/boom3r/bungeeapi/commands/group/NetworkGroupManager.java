@@ -10,11 +10,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkGroupManager {
      Map<UUID, NetworkGroup > networkGroupList;
@@ -32,6 +32,7 @@ public class NetworkGroupManager {
         }
         NetworkGroup toAdd = new NetworkGroup(owner,groupName,groupTag);
         networkGroupList.put(owner.getUuid(), toAdd);
+        saveInRedis();
         return true;
     }
 
@@ -100,7 +101,7 @@ public class NetworkGroupManager {
             if(!isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(receiver.getUuid()))){
                 try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement(
-                             "INSERT INTO network_request VALUES (?,?,?,1,1)"
+                             "INSERT INTO network_request VALUES (?,?,?,1,1, now())"
                      )
                 ) {
                     statement.setString(1, sender.getUuid().toString());
@@ -134,7 +135,7 @@ public class NetworkGroupManager {
             if(isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(sender.getUuid()))){
                 try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement(
-                             "DELETE FROM network_request WHERE (sender = ? OR receiver = ?) AND type = ?"
+                             "DELETE FROM network_request WHERE (sender = ? OR receiver = ?) AND type = ? AND state = 1 AND active = 1"
                      )
                 ) {
                     statement.setString(1, sender.getUuid().toString());
@@ -160,6 +161,61 @@ public class NetworkGroupManager {
         }
     }
 
+    public boolean updateInvite(UUID sender, UUID receiver, int status, int active){
+        try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement(
+                     "UPDATE network_request SET state = ?, active = ? WHERE sender = ? AND receiver = ? AND type = 'GROUP'"
+             )
+        ) {
+            statement.setInt(1, status);
+            statement.setInt(2, active);
+            statement.setString(3, sender.toString());
+            statement.setString(4, receiver.toString());
+
+            statement.executeUpdate();
+            bungeeLogger.DebugV("Actualisation d'invitation de groupe  ! : "+sender+" -> "+receiver+" -->> "+status,2);
+
+            //sender.sendMessage("Suppression d'invitation de groupe  !");
+            // pubsub
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            bungeeLogger.Warn(e.toString());
+            return false;
+        }
+    }
+
+    public boolean hasInvite(UUID sender, UUID receiver){
+        try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement(
+                     "SELECT COUNT(sender) AS recordCount FROM network_request WHERE sender = ? AND receiver = ? AND type = ? AND state = 1 AND active = 1"
+             )
+        ) {
+            statement.setString(1, sender.toString());
+            statement.setString(2, receiver.toString());
+            statement.setString(3, "GROUP");
+
+            ResultSet result = statement.executeQuery();
+            result.next();
+            int count = result.getInt("recordCount");
+
+            result.close();
+
+            if (count > 0) {
+                bungeeLogger.DebugV("Il existe une invitation pour ce joueur  !",2);
+                return true;
+            } else {
+                bungeeLogger.DebugV("Il n'existe pas d'invitation pour ce joueur  !",2);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            bungeeLogger.Warn(e.toString());
+            return false;
+        }
+    }
+
     public Map<UUID, NetworkGroup> getNetworkGroupList() {
         return networkGroupList;
     }
@@ -180,4 +236,9 @@ public class NetworkGroupManager {
         // using only the server to send data the packet will be lost if no players are in it
         ProxyServer.getInstance().getPlayer(player).getServer().getInfo().sendData( "bungee:group", out.toByteArray() );
     }
+
+    public void saveInRedis(){
+        redisManager.save("network_group_list",this.networkGroupList);
+    }
+
 }

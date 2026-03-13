@@ -17,7 +17,7 @@ public class NetworkGroup {
     private NetworkUser groupOwner;
     private String groupName;
     private String groupTag;
-    private NetworkGroupManager networkGroupManager;
+    private transient NetworkGroupManager networkGroupManager;
 
     public NetworkGroup(NetworkUser groupOwner, @Nullable String groupName, @Nullable String groupTag){
         this.groupOwner = groupOwner;
@@ -39,8 +39,16 @@ public class NetworkGroup {
     }
 
     public boolean joinGroup(NetworkUser user){
+        if (!networkGroupManager.hasInvite(groupOwner.getUuid(), user.getUuid())){
+            user.sendMessage("Tu n'as pas d'invitation de groupe de la part de "+groupOwner.getName());
+            return false;
+        }
         playerList.add(user);
-        //BungeeAPI.redisManager.save("group:"+groupUUID,this);
+
+        bungeeLogger.DebugV(user.getName()+" viens de rejoindre le groupe de "+groupOwner.getName()+". Ses paramètres de base étaient : "+user.getName()+" pour join le groupe "+groupUUID,2);
+        BungeeAPI.redisManager.save("group:"+groupUUID,this);
+        bungeeLogger.DebugV("Le groupe est sauvegardé en Redis",2);
+        networkGroupManager.removeInvite(groupOwner);
         return true;
     }
 
@@ -49,8 +57,11 @@ public class NetworkGroup {
             bungeeLogger.DebugV(user.getName()+" vient de quitter un groupe dont il était leader",2);
             if (playerList.size()-1 > 0){
                 bungeeLogger.DebugV("Transfert du lead",2);
+
+                saveInRedis();
                 //transfert lead
                 //BungeeAPI.redisManager.save("group:"+groupUUID,this);
+                saveInRedis();
             } else {
                 bungeeLogger.DebugV("Destruction du groupe : plus assez de monde",2);
                 networkGroupManager.removeInvite(user);
@@ -59,6 +70,7 @@ public class NetworkGroup {
             }
         } else {
             playerList.remove(user);
+            saveInRedis();
             if (playerList.size() == 0){
                 //destruction du groupe
                 bungeeLogger.DebugV("Destruction du groupe : plus personne",2);
@@ -67,6 +79,7 @@ public class NetworkGroup {
                 BungeeAPI.redisManager.delete("group:"+groupUUID);
             }
         }
+
         return true;
     }
     public boolean isInGroup(NetworkUser user){
@@ -102,7 +115,7 @@ public class NetworkGroup {
 
     public boolean saveInRedis(){
         if (redisEnabled){
-            redisManager.save(this.getGroupUUID().toString(),this);
+            redisManager.save("group:"+this.getGroupUUID().toString(),this);
         }
         return false;
     }

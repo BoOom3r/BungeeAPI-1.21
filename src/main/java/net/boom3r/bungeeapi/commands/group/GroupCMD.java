@@ -1,15 +1,12 @@
 package net.boom3r.bungeeapi.commands.group;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.managers.LogManager;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.core.utils.DebugUtils;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-
-import java.util.UUID;
 
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.boom3r.bungeeapi.BungeeAPI.networkManager;
@@ -98,6 +95,7 @@ public class GroupCMD extends Command {
                             networkManager.networkGroupManager.getUserGroup(quitter).quitGroup(quitter);
                         }
                     } else {
+                        wrongUsage(nSender);
                         // TODO Mauvais usage
 
                     }
@@ -107,14 +105,18 @@ public class GroupCMD extends Command {
 
             // DEPART D UN GROUPE
             if (args[0].equalsIgnoreCase("quit")) {
-                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
+                if (BungeeAPI.networkManager.networkGroupManager.isInExistingGroup(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
                     bungeeLogger.DebugV("Départ du groupe - quit",3);
                     if (args.length == 1){
                         networkManager.networkGroupManager.getUserGroup(nSender).quitGroup(nSender);
+                        nSender.sendMessage("Tu as quitté ton groupe !");
                     } else {
+                        wrongUsage(nSender);
                         // TODO Mauvais usage
 
                     }
+                } else {
+                    nSender.sendMessage("Tu n'es pas dans un groupe !");
                 }
             }
 
@@ -192,6 +194,7 @@ public class GroupCMD extends Command {
                         }
                     } else {
                         // TODO le player n'a pas fait la bonne synthaxe
+                        wrongUsage(nSender);
                     }
                 } else {
                     bungeeLogger.DebugV("Le joueur "+sender.getName()+" n'a pas le droit d'ajouter de force un joueur", 2);
@@ -210,7 +213,7 @@ public class GroupCMD extends Command {
                         bungeeLogger.DebugV("Join du joueur " + nSender.getName() + " au groupe du joueur " + toJoin.getName(), 2);
                         // Si joueur a une demande
                         networkManager.networkGroupManager.getUserGroup(toJoin).joinGroup(nSender);
-
+                        nSender.sendMessage("Tu viens de rejoindre le groupe de "+args[1]+" !");
                         //nSender.sendMessage("Création du groupe avec le nom "+args[1]);
 
                     }
@@ -220,5 +223,9 @@ public class GroupCMD extends Command {
                 }
             }
         }
+    }
+
+    public void wrongUsage(NetworkUser user){
+        user.sendMessage("Mauvais usage de la commande");
     }
 }

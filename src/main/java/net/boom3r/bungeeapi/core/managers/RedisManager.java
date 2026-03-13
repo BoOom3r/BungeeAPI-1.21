@@ -1,5 +1,6 @@
 package net.boom3r.bungeeapi.core.managers;
 
+import com.google.gson.GsonBuilder;
 import net.boom3r.bungeeapi.BungeeAPI;
 import org.jspecify.annotations.Nullable;
 import redis.clients.jedis.Jedis;
@@ -7,11 +8,16 @@ import redis.clients.jedis.JedisPool;
 import com.google.gson.Gson;
 import redis.clients.jedis.JedisPubSub;
 
+import java.lang.reflect.Modifier;
+
 import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class RedisManager {
     private final JedisPool pool;
-    private final Gson gson = new Gson();
+    //private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .excludeFieldsWithModifiers(Modifier.TRANSIENT)
+            .create();
 
     public RedisManager(String host, int port, @Nullable String password) {
         // initialisation du pool (pense à gérer l’authentification si besoin)
@@ -82,4 +88,6 @@ public class RedisManager {
             }
         }).start();
     }
+
+
 }
