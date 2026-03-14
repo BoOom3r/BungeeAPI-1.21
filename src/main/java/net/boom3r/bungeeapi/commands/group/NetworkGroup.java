@@ -129,6 +129,14 @@ public class NetworkGroup {
         return false;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public String getGroupTag() {
+        return groupTag;
+    }
+
     public void transfert(NetworkUser oldOwner, NetworkUser networkUser){
         this.groupOwner = networkUser;
         this.groupUUID = networkUser.getUuid();

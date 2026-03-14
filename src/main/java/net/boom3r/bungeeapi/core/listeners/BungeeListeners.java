@@ -84,6 +84,7 @@ public class BungeeListeners implements Listener {
         } else {
             bungeeLogger.DebugV("le joueur n'était pas dans un groupe : ",3);
         }
+        networkManager.networkGroupManager.saveInRedis();
         //redisManager.delete("network_user:"+user.getUuid());
         networkManager.removeNetworkUser(user.getUuid());
     }

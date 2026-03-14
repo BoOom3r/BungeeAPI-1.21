@@ -13,6 +13,7 @@ import net.boom3r.bungeeapi.core.listeners.RedisPubSubListener;
 import net.boom3r.bungeeapi.core.managers.*;
 import net.boom3r.bungeeapi.core.objects.NetworkConf;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.services.PubSubService;
 import net.boom3r.bungeeapi.runnables.ScheduledRunner;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -49,6 +50,7 @@ public final class BungeeAPI extends Plugin {
     public static LogManager bungeeLogger;
     public static NetworkConf networkConf;
     DebugHttpServer debugServer;
+    public PubSubService psService;
 
     @Override
     public void onEnable() {
@@ -95,6 +97,18 @@ public final class BungeeAPI extends Plugin {
             //RedisPubSubListener listener = new RedisPubSubListener(this);
             //redisManager.subscribe("b3api-channel", listener);
             //ProxyServer.getInstance().getScheduler().runAsync(this, new RedisManager.PubSubReaderTask(this));
+            psService = new PubSubService(redisManager);
+            psService.subscribe("b3api-group", message -> {
+                if ("group_create".equals(message.getType())) {
+                    // Vérifie la source pour éviter les boucles
+                    if (!"bungee".equals(message.getSource())) {
+                        UUID groupUuid = UUID.fromString((String) message.getPayload().get("groupUuid"));
+                        bungeeLogger.DebugV("Message PubSub reçu : "+groupUuid,2);
+                        // Reconstitue la liste des joueurs et crée ou met à jour le groupe
+                        // via NetworkGroupManager
+                    }
+                }
+            });
         }
 
         networkManager = new NetworkManager();

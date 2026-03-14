@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.objects.PubSubMessage;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jspecify.annotations.Nullable;
@@ -33,6 +34,7 @@ public class NetworkGroupManager {
         NetworkGroup toAdd = new NetworkGroup(owner,groupName,groupTag);
         networkGroupList.put(owner.getUuid(), toAdd);
         saveInRedis();
+        redisPublish(toAdd);
         return true;
     }
 
@@ -215,6 +217,27 @@ public class NetworkGroupManager {
             bungeeLogger.Warn(e.toString());
             return false;
         }
+    }
+
+    public void redisPublish(NetworkGroup group){
+        // SheepWars (côté Spigot)
+        Map<String,Object> payload = new HashMap<>();
+//        Map.of(
+//                "groupUuid", group.getGroupUUID().toString(),
+//                "ownerUuid", group.getGroupOwner().getUuid().toString(),
+//                "memberUuids", group.getPlayerList(),
+//   //                     .map(NetworkUser::toString)
+//   //                     .toArray(String[]::new),
+//                "groupName", group.getGroupName(),
+//                "groupTag", group.getGroupTag()
+//        );
+        payload.put(group.getGroupUUID().toString(), group);
+        PubSubMessage msg = new PubSubMessage(
+                "group_create",
+                "bungeecord", // identifiant du serveur
+                payload
+        );
+        bungeeInstance.psService.publish("b3api-group", msg);
     }
 
     public Map<UUID, NetworkGroup> getNetworkGroupList() {
