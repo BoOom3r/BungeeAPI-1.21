@@ -12,14 +12,16 @@ import java.util.UUID;
 import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkGroup {
+    private NetworkUser groupOwner;
     private UUID groupUUID;
-    private final List<UUID> playerList = new ArrayList<>();
+    private final List<NetworkUser> playerList = new ArrayList<>();
     private String groupName;
     private String groupTag;
     private transient NetworkGroupManager networkGroupManager;
 
-    public NetworkGroup(UUID groupOwner, @Nullable String groupName, @Nullable String groupTag){
-        this.groupUUID = groupOwner;
+    public NetworkGroup(NetworkUser groupOwner, @Nullable String groupName, @Nullable String groupTag){
+        this.groupOwner = groupOwner;
+        this.groupUUID = groupOwner.getUuid();
         this.groupName = groupName;
         this.groupTag = groupTag;
         this.networkGroupManager = networkManager.networkGroupManager;
@@ -52,7 +54,7 @@ public class NetworkGroup {
     }
 
     public boolean quitGroup(NetworkUser user){
-        if (user == groupOwner) {
+        if (groupOwner.equals(user)) {
             bungeeLogger.DebugV(user.getName()+" vient de quitter un groupe dont il était leader",2);
             if (playerList.size()-1 > 0){
                 bungeeLogger.DebugV("Transfert du lead",2);
@@ -82,15 +84,14 @@ public class NetworkGroup {
         return true;
     }
 
-    public NetworkUser getNetUserOwner(UUID uuid){
 
-    }
 
     public boolean isInGroup(NetworkUser user){
-        if (playerList.contains(user) || groupOwner == user) {
-            return true;
-        }
-        return false;
+        return playerList.contains(user) || groupOwner.equals(user);
+    }
+
+    public boolean isGroupOwner(NetworkUser user){
+        return groupOwner.equals(user);
     }
 
     public NetworkUser getGroupOwner() {
@@ -131,5 +132,17 @@ public class NetworkGroup {
         BungeeAPI.redisManager.delete("group:"+oldOwner.getUuid());
         networkGroupManager.networkGroupList.put(networkUser.getUuid(), this);
         BungeeAPI.redisManager.save("group:"+networkUser.getUuid(),this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof NetworkGroup other)) return false;
+        return groupUUID.equals(other.groupUUID);
+    }
+
+    @Override
+    public int hashCode() {
+        return groupUUID.hashCode();
     }
 }

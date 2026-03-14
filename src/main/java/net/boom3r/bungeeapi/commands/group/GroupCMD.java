@@ -204,7 +204,7 @@ public class GroupCMD extends Command {
 
             if (args[0].equalsIgnoreCase("join")) {
                 if (args.length == 2) {
-                    NetworkUser toJoin = networkManager.getNetworkUserMap().get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                    NetworkUser toJoin = networkManager.getNetworkUserList().get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
                     if (toJoin != null) {
                         if (networkManager.networkGroupManager.isInExistingGroup(nSender)) {
                             bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe", 3);

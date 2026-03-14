@@ -10,18 +10,18 @@ import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
 
 public class NetworkManager {
 
-    public List<UUID> networkUserList;
+    public Map<UUID, NetworkUser> networkUserList;
     public NetworkUserManager networkUserManager;
     public NetworkGroupManager networkGroupManager;
 
     public NetworkManager() {
-        networkUserList = new ArrayList<>();
+        networkUserList = new HashMap<>();
         networkUserManager = new NetworkUserManager();
         networkGroupManager = new NetworkGroupManager();
     }
     public void addNetworkUser(UUID uuid, NetworkUser nUser){
         networkUserManager.updateNetworkUserDB(nUser);
-        networkUserList.add(uuid);
+        networkUserList.put(uuid, nUser);
         if (redisEnabled){
             redisManager.save("network_user_list",networkUserList);
             redisManager.save("network_user:"+uuid,nUser);
@@ -38,7 +38,13 @@ public class NetworkManager {
 
     }
 
-    public List<UUID> getNetworkUserList(){
+
+
+    public Map<UUID, NetworkUser> getNetworkUserList(){
+
+        return networkUserList;
+    }
+    public Map<UUID, NetworkUser> getNetworkUserMap(){
 
         return networkUserList;
     }

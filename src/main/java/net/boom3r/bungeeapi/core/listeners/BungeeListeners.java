@@ -74,13 +74,15 @@ public class BungeeListeners implements Listener {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             player.sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " nous a quitté..."));
         }
-        NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserMap().get(event.getPlayer().getUniqueId());
+        NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserList().get(event.getPlayer().getUniqueId());
         user.setOffline();
         if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user)){
             bungeeLogger.DebugV("le joueur était dans un groupe : ",3);
             bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user).quitGroup(user);
             bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
             bungeeLogger.DebugV("le joueur a quitté le groupe",3);
+        } else {
+            bungeeLogger.DebugV("le joueur n'était pas dans un groupe : ",3);
         }
         //redisManager.delete("network_user:"+user.getUuid());
         networkManager.removeNetworkUser(user.getUuid());
