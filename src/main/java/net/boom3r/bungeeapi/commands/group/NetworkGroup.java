@@ -13,20 +13,19 @@ import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkGroup {
     private UUID groupUUID;
-    private List<NetworkUser> playerList = new ArrayList<>();;
-    private NetworkUser groupOwner;
+    private final List<UUID> playerList = new ArrayList<>();
     private String groupName;
     private String groupTag;
     private transient NetworkGroupManager networkGroupManager;
 
-    public NetworkGroup(NetworkUser groupOwner, @Nullable String groupName, @Nullable String groupTag){
-        this.groupOwner = groupOwner;
-        this.groupUUID = groupOwner.getUuid();
+    public NetworkGroup(UUID groupOwner, @Nullable String groupName, @Nullable String groupTag){
+        this.groupUUID = groupOwner;
         this.groupName = groupName;
         this.groupTag = groupTag;
         this.networkGroupManager = networkManager.networkGroupManager;
         playerList.add(groupOwner);
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
+
         if (groupName != null){
             if (groupTag != null){
                 groupOwner.sendMessage("Le groupe "+groupName+ " vient d'être créé ! Son tag est "+groupTag);
@@ -39,7 +38,7 @@ public class NetworkGroup {
     }
 
     public boolean joinGroup(NetworkUser user){
-        if (!networkGroupManager.hasInvite(groupOwner.getUuid(), user.getUuid())){
+        if (!networkGroupManager.hasInvite(groupUUID, user.getUuid())){
             user.sendMessage("Tu n'as pas d'invitation de groupe de la part de "+groupOwner.getName());
             return false;
         }
@@ -82,6 +81,11 @@ public class NetworkGroup {
 
         return true;
     }
+
+    public NetworkUser getNetUserOwner(UUID uuid){
+
+    }
+
     public boolean isInGroup(NetworkUser user){
         if (playerList.contains(user) || groupOwner == user) {
             return true;

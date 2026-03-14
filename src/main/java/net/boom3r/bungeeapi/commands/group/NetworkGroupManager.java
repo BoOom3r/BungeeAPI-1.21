@@ -30,7 +30,7 @@ public class NetworkGroupManager {
             owner.sendMessage("Tu es déjà dans un groupe ! Quitte le avant d'en créer un...");
             return false;
         }
-        NetworkGroup toAdd = new NetworkGroup(owner,groupName,groupTag);
+        NetworkGroup toAdd = new NetworkGroup(owner.getUuid(),groupName,groupTag);
         networkGroupList.put(owner.getUuid(), toAdd);
         saveInRedis();
         return true;

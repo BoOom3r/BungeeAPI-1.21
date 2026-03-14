@@ -30,10 +30,10 @@ public class NetworkUserManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
-                bungeeLogger.Admin("Serveur enregistré");
+                bungeeLogger.Admin("Serveur NetworkUser enregistré !");
                 return true;
             } else {
-                bungeeLogger.Admin("Problème dans l'ajout du serveur");
+                bungeeLogger.Admin("Problème dans l'ajout du NetworkUser...");
                 return false;
             }
 

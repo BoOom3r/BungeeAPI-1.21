@@ -1,7 +1,6 @@
 package net.boom3r.bungeeapi.core.listeners;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.managers.LogManager;
 import net.boom3r.bungeeapi.core.managers.WhiteListManager;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.md_5.bungee.api.ProxyServer;
@@ -24,8 +23,8 @@ public class BungeeListeners implements Listener {
             if (WhiteListManager.isWhiteListed(event.getPlayer())) {
                 for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                     player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
-                    AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
                 }
+                AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
             } else {
                 event.getPlayer().disconnect(new TextComponent("Désolé mais tu n'est pas sur la whitelist !"));
                 AddEvent("BungeeBlockWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
@@ -33,8 +32,8 @@ public class BungeeListeners implements Listener {
         } else {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
-                AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
             }
+            AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
         }
     }
 
@@ -64,7 +63,7 @@ public class BungeeListeners implements Listener {
     }
 
     @EventHandler
-    public void onPostLogin(PreLoginEvent event) {
+    public void onPreLogin(PreLoginEvent event) {
 
         bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getConnection().getSocketAddress() + " a tenté la co !"));
         AddEvent("BungeePreCon", "NO_OWNER", "{\"ip\": " +event.getConnection().getSocketAddress().toString().substring(1, event.getConnection().getSocketAddress().toString().indexOf(':'))+"}");
@@ -75,7 +74,7 @@ public class BungeeListeners implements Listener {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             player.sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " nous a quitté..."));
         }
-        NetworkUser user = bungeeInstance.getNetworkManager().networkUserList.get(event.getPlayer().getUniqueId());
+        NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserMap().get(event.getPlayer().getUniqueId());
         user.setOffline();
         if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user)){
             bungeeLogger.DebugV("le joueur était dans un groupe : ",3);
@@ -91,7 +90,7 @@ public class BungeeListeners implements Listener {
     @EventHandler
     public void on(ServerSwitchEvent event) {
         if(event.getFrom() != null){
-            bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()));
+            bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()+ " pour aller vers "+event.getPlayer().getServer().getInfo().getName()));
         }
     }
 
