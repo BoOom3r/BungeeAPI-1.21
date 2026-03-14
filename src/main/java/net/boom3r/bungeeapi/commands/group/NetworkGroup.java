@@ -3,6 +3,8 @@ package net.boom3r.bungeeapi.commands.group;
 import com.google.gson.Gson;
 import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,6 +52,7 @@ public class NetworkGroup {
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
         bungeeLogger.DebugV("Le groupe est sauvegardé en Redis",2);
         networkGroupManager.removeInvite(groupOwner);
+
         return true;
     }
 
@@ -145,6 +148,20 @@ public class NetworkGroup {
         networkGroupManager.networkGroupList.put(networkUser.getUuid(), this);
         BungeeAPI.redisManager.save("group:"+networkUser.getUuid(),this);
     }
+    public void teleportPlayer(NetworkUser user){
+        if (!ProxyServer.getInstance().getPlayer(user.getUuid()).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName())) {
+            ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+        }
+    }
+
+    public void teleportPlayers(){
+        for (NetworkUser user : playerList){
+            if (!ProxyServer.getInstance().getPlayer(user.getUuid()).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName())) {
+                ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+            }
+        }
+    }
+
 
     @Override
     public boolean equals(Object obj) {

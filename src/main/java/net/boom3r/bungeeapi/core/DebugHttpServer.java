@@ -55,8 +55,8 @@ public class DebugHttpServer {
         for (NetworkUser user : users.values()) {
             sb.append("<tr><td>").append(user.getUuid()).append("</td><td>")
                     .append(escapeHtml(user.getName())).append("</td><td>")
-                    .append(user.isOnline()).append("</td></tr>")
-                    .append(user.getLastServer()).append("</td></tr>")
+                    .append(user.isOnline()).append("</td><td>")
+                    .append(user.getLastServer()).append("</td><td>")
                     .append(user.getActualServer()).append("</td></tr>");
         }
         sb.append("</table></body></html>");

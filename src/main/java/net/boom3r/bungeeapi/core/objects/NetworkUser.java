@@ -18,8 +18,8 @@ public class NetworkUser {
     private String ip;
     private boolean online;
     private boolean isLinked;
-    private @Nullable ServerObject actualServer;
-    private @Nullable ServerObject lastServer;
+    private @Nullable String actualServer;
+    private @Nullable String lastServer;
     private List<UUID> friendList = new ArrayList<>();
 
 
@@ -91,15 +91,15 @@ public class NetworkUser {
         return nUser;
     }
 
-    public ServerObject getActualServer() {
+    public String getActualServer() {
         return actualServer;
     }
 
-    public ServerObject getLastServer() {
+    public String getLastServer() {
         return lastServer;
     }
 
-    public void moveServer(ServerObject oldServer, ServerObject newServer){
+    public void moveServer(String oldServer, String newServer){
         this.lastServer = oldServer;
         this.actualServer = newServer;
     }

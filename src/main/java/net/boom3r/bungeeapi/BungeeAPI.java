@@ -1,11 +1,13 @@
 package net.boom3r.bungeeapi;
 
+import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariDataSource;
 import net.boom3r.bungeeapi.commands.GlobalKickCMD;
 import net.boom3r.bungeeapi.commands.HubCMD;
 import net.boom3r.bungeeapi.commands.MaintenanceCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.commands.group.GroupCMD;
+import net.boom3r.bungeeapi.commands.group.NetworkGroup;
 import net.boom3r.bungeeapi.core.DebugHttpServer;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
@@ -29,6 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -102,12 +105,16 @@ public final class BungeeAPI extends Plugin {
                 if ("group_create".equals(message.getType())) {
                     // Vérifie la source pour éviter les boucles
                     if (!"bungee".equals(message.getSource())) {
-                        for (Object o : message.getPayload().values()){
-                            bungeeLogger.DebugV("Message PubSub raw : "+o,3);
+                        for (Map.Entry o : message.getPayload().entrySet()){
+                            bungeeLogger.DebugV("Message PubSub raw : "+o.getKey()+" -> "+o.getValue(),3);
+                            String groupUuid = o.getKey().toString();
+                            Gson json = new Gson();
+                            NetworkGroup newGroup = json.fromJson(o.getValue().toString(), NetworkGroup.class);
+                            bungeeLogger.DebugV("Message PubSub reçu : group_create -> "+newGroup.getGroupName()+" -> "+newGroup.getGroupOwner().getUuid()+". group UUID : "+groupUuid,2);
                         }
-                        UUID groupUuid = UUID.fromString((String)message.getPayload().get("groupUUID"));
+
                         //String payload = message.getPayload().get("groupUuid"));
-                        bungeeLogger.DebugV("Message PubSub reçu : "+groupUuid,2);
+
                         // Reconstitue la liste des joueurs et crée ou met à jour le groupe
                         // via NetworkGroupManager
                     }
