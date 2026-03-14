@@ -102,7 +102,11 @@ public final class BungeeAPI extends Plugin {
                 if ("group_create".equals(message.getType())) {
                     // Vérifie la source pour éviter les boucles
                     if (!"bungee".equals(message.getSource())) {
-                        UUID groupUuid = UUID.fromString((String) message.getPayload().get("groupUuid"));
+                        for (Object o : message.getPayload().values()){
+                            bungeeLogger.DebugV("Message PubSub raw : "+o,3);
+                        }
+                        UUID groupUuid = UUID.fromString((String)message.getPayload().get("groupUUID"));
+                        //String payload = message.getPayload().get("groupUuid"));
                         bungeeLogger.DebugV("Message PubSub reçu : "+groupUuid,2);
                         // Reconstitue la liste des joueurs et crée ou met à jour le groupe
                         // via NetworkGroupManager
@@ -232,5 +236,25 @@ public final class BungeeAPI extends Plugin {
 
     public NetworkConf getNetworkConf() {
         return networkConf;
+    }
+
+    public BungeeAPI getBungeeInstance() {
+        return bungeeInstance;
+    }
+
+    public int getDEBUGLVL() {
+        return DEBUGLVL;
+    }
+
+    public ServerManager getServerManager() {
+        return serverManager;
+    }
+
+    public RedisManager getRedisManager() {
+        return redisManager;
+    }
+
+    public LogManager getBungeeLogger() {
+        return bungeeLogger;
     }
 }

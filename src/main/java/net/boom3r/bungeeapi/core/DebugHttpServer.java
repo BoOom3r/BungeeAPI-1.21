@@ -51,11 +51,13 @@ public class DebugHttpServer {
     private void handleUsers(HttpExchange exchange) throws IOException {
         Map<UUID, NetworkUser> users = networkManager.getNetworkUserList();
         StringBuilder sb = new StringBuilder("<html><body><h1>Network Users</h1><table border=\"1\">");
-        sb.append("<tr><th>UUID</th><th>Name</th><th>Online</th></tr>");
+        sb.append("<tr><th>UUID</th><th>Name</th><th>Online</th><th>lastServer</th><th>actualServer</th></tr>");
         for (NetworkUser user : users.values()) {
             sb.append("<tr><td>").append(user.getUuid()).append("</td><td>")
                     .append(escapeHtml(user.getName())).append("</td><td>")
-                    .append(user.isOnline()).append("</td></tr>");
+                    .append(user.isOnline()).append("</td></tr>")
+                    .append(user.getLastServer()).append("</td></tr>")
+                    .append(user.getActualServer()).append("</td></tr>");
         }
         sb.append("</table></body></html>");
         sendHtml(exchange, sb.toString());

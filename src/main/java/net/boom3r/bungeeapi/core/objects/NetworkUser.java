@@ -2,6 +2,7 @@ package net.boom3r.bungeeapi.core.objects;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,10 @@ public class NetworkUser {
     private String ip;
     private boolean online;
     private boolean isLinked;
-    private ServerObject actualServer;
-    private ServerObject lastServer;
+    private @Nullable ServerObject actualServer;
+    private @Nullable ServerObject lastServer;
     private List<UUID> friendList = new ArrayList<>();
+
 
     public NetworkUser(UUID uuid, String name, String ip, boolean online, boolean isLinked) {
         this.uuid = uuid;
@@ -28,6 +30,8 @@ public class NetworkUser {
         this.online = online;
         this.isLinked = isLinked;
         this.friendList = new ArrayList<>();
+        this.actualServer = null;
+        this.lastServer = null;
 
         networkManager.addNetworkUser(uuid, this);
     }
@@ -38,6 +42,8 @@ public class NetworkUser {
         this.online = true;
         this.isLinked = false;
         this.friendList = new ArrayList<>();
+        this.actualServer = null;
+        this.lastServer = null;
 
         networkManager.addNetworkUser(uuid, this);
 
@@ -85,6 +91,19 @@ public class NetworkUser {
         return nUser;
     }
 
+    public ServerObject getActualServer() {
+        return actualServer;
+    }
+
+    public ServerObject getLastServer() {
+        return lastServer;
+    }
+
+    public void moveServer(ServerObject oldServer, ServerObject newServer){
+        this.lastServer = oldServer;
+        this.actualServer = newServer;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -96,4 +115,6 @@ public class NetworkUser {
     public int hashCode() {
         return uuid.hashCode();
     }
+
+
 }

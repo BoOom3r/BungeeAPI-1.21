@@ -58,7 +58,7 @@ public class ServerManager {
 
     }
 
-    public static Map<String, ServerObject> getServerlist() {
+    public Map<String, ServerObject> getServerlist() {
         return serverlist;
     }
 
@@ -333,5 +333,7 @@ public class ServerManager {
             e.printStackTrace();
         }
     }
+
+
 
 }

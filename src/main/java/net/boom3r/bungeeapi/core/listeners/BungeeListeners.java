@@ -44,6 +44,7 @@ public class BungeeListeners implements Listener {
             if ((player.hasPermission("bungeeAPI.maintenance." + event.getTarget().getName().toLowerCase(Locale.ROOT))) || (player.hasPermission("bungeeAPI.maintenance.global"))) {
 
                 NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString());
+                newUser.moveServer(null, bungeeInstance.getServerManager().getServerlist().get("hub"));
                 newUser.setOnline();
                 AddEvent("BungeeConMaint",
                         event.getPlayer().getUniqueId().toString(),
@@ -94,6 +95,7 @@ public class BungeeListeners implements Listener {
     public void on(ServerSwitchEvent event) {
         if(event.getFrom() != null){
             bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()+ " pour aller vers "+event.getPlayer().getServer().getInfo().getName()));
+            bungeeInstance.getNetworkManager().getNetworkUserMap().get(event.getPlayer().getUniqueId()).moveServer(bungeeInstance.getServerManager().getServerlist().get(event.getFrom().getName()), bungeeInstance.getServerManager().getServerlist().get(event.getPlayer().getServer().getInfo().getName()));
         }
     }
 
