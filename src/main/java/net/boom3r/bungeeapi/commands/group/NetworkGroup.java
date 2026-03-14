@@ -94,6 +94,10 @@ public class NetworkGroup {
         return groupOwner.equals(user);
     }
 
+    public List<NetworkUser> getPlayerList() {
+        return playerList;
+    }
+
     public NetworkUser getGroupOwner() {
         return groupOwner;
     }

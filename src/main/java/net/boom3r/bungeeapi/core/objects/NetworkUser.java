@@ -84,4 +84,16 @@ public class NetworkUser {
         nUser = redisManager.load("network_user:"+uuid, NetworkUser.class);
         return nUser;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof NetworkUser other)) return false;
+        return uuid.equals(other.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return uuid.hashCode();
+    }
 }

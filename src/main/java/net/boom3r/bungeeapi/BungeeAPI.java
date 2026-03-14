@@ -6,6 +6,7 @@ import net.boom3r.bungeeapi.commands.HubCMD;
 import net.boom3r.bungeeapi.commands.MaintenanceCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.commands.group.GroupCMD;
+import net.boom3r.bungeeapi.core.DebugHttpServer;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
 import net.boom3r.bungeeapi.core.listeners.RedisPubSubListener;
@@ -47,6 +48,7 @@ public final class BungeeAPI extends Plugin {
     public static boolean redisEnabled = false;
     public static LogManager bungeeLogger;
     public static NetworkConf networkConf;
+    DebugHttpServer debugServer;
 
     @Override
     public void onEnable() {
@@ -117,11 +119,25 @@ public final class BungeeAPI extends Plugin {
 
         // Redis
         redisManager.save("server_list", serverManager.getServerlist());
+
+        if (DEBUG){
+            try {
+                debugServer = new DebugHttpServer(getNetworkManager(), getNetworkManager().networkGroupManager);
+                debugServer.start(8080); // ouvre http://localhost:8080/users et /groups
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        if (DEBUG){
+            debugServer.stop();
+        }
+
         if(redisEnabled){
             bungeeLogger.DebugV("Fermeture de la connexion Redis",2);
             redisManager.close();
