@@ -32,11 +32,11 @@ public class LogManager {
     }
 
     public void Err(String msg){
-        logger.severe(PREFIX+"[INFO] -> "+msg);
+        logger.severe(PREFIX+"[ERROR] -> "+msg);
     }
 
     public void Warn(String msg){
-        logger.warning(PREFIX+"[INFO] -> "+msg);
+        logger.warning(PREFIX+"[WARN] -> "+msg);
     }
 
     public void Admin(String msg){

@@ -234,7 +234,7 @@ public class NetworkGroupManager {
         payload.put(group.getGroupUUID().toString(), group);
         PubSubMessage msg = new PubSubMessage(
                 "group_create",
-                "bungeecord", // identifiant du serveur
+                "bungee", // identifiant du serveur
                 payload
         );
         bungeeInstance.psService.publish("b3api-group", msg);

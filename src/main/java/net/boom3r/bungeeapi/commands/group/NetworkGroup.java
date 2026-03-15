@@ -52,7 +52,11 @@ public class NetworkGroup {
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
         bungeeLogger.DebugV("Le groupe est sauvegardé en Redis",2);
         networkGroupManager.removeInvite(groupOwner);
-
+        assert user.getActualServer() != null;
+        if (!user.getActualServer().equalsIgnoreCase(groupOwner.getActualServer())) {
+            bungeeLogger.DebugV("téléportation de "+user.getName()+" vers "+ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName(),2);
+            ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+        }
         return true;
     }
 
@@ -65,6 +69,7 @@ public class NetworkGroup {
                 saveInRedis();
                 //transfert lead
                 //BungeeAPI.redisManager.save("group:"+groupUUID,this);
+                networkGroupManager.removeInvite(user);
                 saveInRedis();
             } else {
                 bungeeLogger.DebugV("Destruction du groupe : plus assez de monde",2);
