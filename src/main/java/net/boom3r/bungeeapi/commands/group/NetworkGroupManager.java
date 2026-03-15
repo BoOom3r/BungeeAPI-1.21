@@ -26,19 +26,20 @@ public class NetworkGroupManager {
         toDestroy = new ArrayList<>();
     }
 
-    public boolean createGroup(NetworkUser owner, @Nullable String groupName, @Nullable String groupTag){
+    public boolean createGroup(UUID owner, @Nullable String groupName, @Nullable String groupTag){
         if (isInExistingGroup(owner)) {
-            owner.sendMessage("Tu es déjà dans un groupe ! Quitte le avant d'en créer un...");
+            NetworkUser nOwner = NetworkUser.getNetUserFromRedis(owner);
+            nOwner.sendMessage("Tu es déjà dans un groupe ! Quitte le avant d'en créer un...");
             return false;
         }
         NetworkGroup toAdd = new NetworkGroup(owner,groupName,groupTag);
-        networkGroupList.put(owner.getUuid(), toAdd);
+        networkGroupList.put(owner, toAdd);
         saveInRedis();
         redisPublish(toAdd);
         return true;
     }
 
-    public boolean isInExistingGroup(NetworkUser user){
+    public boolean isInExistingGroup(UUID user){
         for (NetworkGroup networkGroup : networkGroupList.values()){
             bungeeLogger.DebugV(getClass().getName()+" - Analyse du groupe : "+networkGroup.getGroupUUID(),3);
             if (networkGroup.isInGroup(user)){
@@ -49,7 +50,7 @@ public class NetworkGroupManager {
         return false;
     }
 
-    public boolean isGroupOwner(NetworkUser user){
+    public boolean isGroupOwner(UUID user){
         for (NetworkGroup networkGroup : networkGroupList.values()){
             if (networkGroup.isGroupOwner(user)){
                 bungeeLogger.DebugV(" Group détail : "+networkGroup.getGroupUUID()+" avec Owner "+networkGroup.getGroupOwner().getName() +" - "+ networkGroup.getGroupOwner(),3);
@@ -70,7 +71,7 @@ public class NetworkGroupManager {
         return true;
     }
 
-    public NetworkGroup getUserGroup(NetworkUser user){
+    public NetworkGroup getUserGroup(UUID user){
         for (NetworkGroup networkGroup : networkGroupList.values()){
             if (networkGroup.isInGroup(user)){
                 return networkGroup;
@@ -98,22 +99,23 @@ public class NetworkGroupManager {
         player.getServer().getInfo().sendData( "bungee:group", out.toByteArray() );
     }
 
-    public boolean sendInvite(NetworkUser sender, NetworkUser receiver) {
+    public boolean sendInvite(UUID sender, UUID receiver) {
         // Est ce que le sender est propriétaire du groupe
-        if (isGroupOwner(bungeeInstance.getNetworkManager().networkUserList.get(sender.getUuid()))) {
-            if(!isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(receiver.getUuid()))){
+        if (isGroupOwner(sender)) {
+            if(!isInExistingGroup(receiver)){
                 try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement(
                              "INSERT INTO network_request VALUES (?,?,?,1,1, now())"
                      )
                 ) {
-                    statement.setString(1, sender.getUuid().toString());
-                    statement.setString(2, receiver.getUuid().toString());
+                    statement.setString(1, sender.toString());
+                    statement.setString(2, receiver.toString());
                     statement.setString(3, "GROUP");
                     statement.executeUpdate();
                     bungeeLogger.DebugV("Invitation de groupe envoyée !",2);
-                    bungeeInvite(sender.getUuid(),receiver.getUuid());
-                    sender.sendMessage("Invitation de groupe envoyée à "+receiver.getName());
+                    bungeeInvite(sender,receiver);
+
+                    NetworkUser.getNetUserFromRedis(sender).sendMessage("Invitation de groupe envoyée à "+NetworkUser.getNetUserFromRedis(receiver).getName());
                     // pubsub
 
                     return true;
@@ -124,25 +126,25 @@ public class NetworkGroupManager {
                 }
             } else {
                 bungeeLogger.DebugV("Le joueur "+receiver+" est déjà dans un groupe", 2);
-                sender.sendMessage("Le joueur "+receiver.getName()+" est déjà membre d'un groupe : tu ne peux pas l'inviter.");
+                NetworkUser.getNetUserFromRedis(sender).sendMessage("Le joueur "+NetworkUser.getNetUserFromRedis(receiver).getName()+" est déjà membre d'un groupe : tu ne peux pas l'inviter.");
                 return false;
             }
         } else {
             bungeeLogger.DebugV("Le joueur "+sender+" n'est pas propriétaire du groupe", 2);
-            sender.sendMessage("Tu n'es pas propriétaire d'un groupe : tu ne peux pas inviter de joueurs.");
+            NetworkUser.getNetUserFromRedis(sender).sendMessage("Tu n'es pas propriétaire d'un groupe : tu ne peux pas inviter de joueurs.");
             return false;
         }
     }
 
-    public boolean removeInvite(NetworkUser sender){
-            if(isInExistingGroup(bungeeInstance.getNetworkManager().networkUserList.get(sender.getUuid()))){
+    public boolean removeInvite(UUID sender){
+            if(isInExistingGroup(sender)){
                 try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
                      PreparedStatement statement = sql.prepareStatement(
                              "DELETE FROM network_request WHERE (sender = ? OR receiver = ?) AND type = ? AND state = 1 AND active = 1"
                      )
                 ) {
-                    statement.setString(1, sender.getUuid().toString());
-                    statement.setString(2, sender.getUuid().toString());
+                    statement.setString(1, sender.toString());
+                    statement.setString(2, sender.toString());
                     statement.setString(3, "GROUP");
                     statement.executeUpdate();
                     bungeeLogger.DebugV("Suppression d'invitation de groupe  !",2);

@@ -33,6 +33,9 @@ public class BungeeListeners implements Listener {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
             }
+            NetworkUser user = NetworkUser.getNetUserFromRedis(event.getPlayer().getUniqueId());
+            user.moveServer(null, "lobby");
+            redisManager.save("network_user:"+user.getUuid().toString(), user);
             AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
         }
     }
@@ -79,9 +82,9 @@ public class BungeeListeners implements Listener {
         }
         NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserList().get(event.getPlayer().getUniqueId());
         user.setOffline();
-        if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user)){
+        if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user.getUuid())){
             bungeeLogger.DebugV("le joueur était dans un groupe : ",3);
-            bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user).quitGroup(user);
+            bungeeInstance.getNetworkManager().networkGroupManager.getUserGroup(user.getUuid()).quitGroup(user.getUuid());
             bungeeInstance.getNetworkManager().networkGroupManager.destroyGroup();
             bungeeLogger.DebugV("le joueur a quitté le groupe",3);
         } else {

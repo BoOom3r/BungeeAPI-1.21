@@ -109,17 +109,23 @@ public class NetworkUser {
         this.actualServer = newServer;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof NetworkUser other)) return false;
-        return uuid.equals(other.uuid);
+    public static NetworkUser getNetUserFromRedis(UUID uuid){
+        NetworkUser nUser = null;
+        nUser = bungeeInstance.getRedisManager().load("network_user:"+uuid, NetworkUser.class);
+        return nUser;
     }
 
-    @Override
-    public int hashCode() {
-        return uuid.hashCode();
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) return true;
+//        if (!(obj instanceof NetworkUser other)) return false;
+//        return uuid.equals(other.uuid);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return uuid.hashCode();
+//    }
 
 
 }

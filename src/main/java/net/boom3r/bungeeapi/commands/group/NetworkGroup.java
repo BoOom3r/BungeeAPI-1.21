@@ -14,16 +14,16 @@ import java.util.UUID;
 import static net.boom3r.bungeeapi.BungeeAPI.*;
 
 public class NetworkGroup {
-    private NetworkUser groupOwner;
+    private UUID groupOwner;
     private UUID groupUUID;
-    private final List<NetworkUser> playerList = new ArrayList<>();
+    private final List<UUID> playerList = new ArrayList<>();
     private String groupName;
     private String groupTag;
     private transient NetworkGroupManager networkGroupManager;
 
-    public NetworkGroup(NetworkUser groupOwner, @Nullable String groupName, @Nullable String groupTag){
+    public NetworkGroup(UUID groupOwner, @Nullable String groupName, @Nullable String groupTag){
         this.groupOwner = groupOwner;
-        this.groupUUID = groupOwner.getUuid();
+        this.groupUUID = groupOwner;
         this.groupName = groupName;
         this.groupTag = groupTag;
         this.networkGroupManager = networkManager.networkGroupManager;
@@ -32,37 +32,37 @@ public class NetworkGroup {
 
         if (groupName != null){
             if (groupTag != null){
-                groupOwner.sendMessage("Le groupe "+groupName+ " vient d'être créé ! Son tag est "+groupTag);
+                getNetworkUser(groupOwner).sendMessage("Le groupe "+groupName+ " vient d'être créé ! Son tag est "+groupTag);
             } else {
-                groupOwner.sendMessage("Le groupe " + groupName + " vient d'être créé !");
+                getNetworkUser(groupOwner).sendMessage("Le groupe " + groupName + " vient d'être créé !");
             }
         } else {
-            groupOwner.sendMessage("Le groupe vient d'être créé !");
+            getNetworkUser(groupOwner).sendMessage("Le groupe vient d'être créé !");
         }
     }
 
-    public boolean joinGroup(NetworkUser user){
-        if (!networkGroupManager.hasInvite(groupUUID, user.getUuid())){
-            user.sendMessage("Tu n'as pas d'invitation de groupe de la part de "+groupOwner.getName());
+    public boolean joinGroup(UUID user){
+        if (!networkGroupManager.hasInvite(groupUUID, user)){
+            getNetworkUser(user).sendMessage("Tu n'as pas d'invitation de groupe de la part de "+groupOwner);
             return false;
         }
         playerList.add(user);
 
-        bungeeLogger.DebugV(user.getName()+" viens de rejoindre le groupe de "+groupOwner.getName()+". Ses paramètres de base étaient : "+user.getName()+" pour join le groupe "+groupUUID,2);
+        bungeeLogger.DebugV(getNetworkUser(user).getName()+" viens de rejoindre le groupe de "+getNetworkUser(groupOwner).getName()+". Ses paramètres de base étaient : "+getNetworkUser(user).getName()+" pour join le groupe "+groupUUID,2);
         BungeeAPI.redisManager.save("group:"+groupUUID,this);
         bungeeLogger.DebugV("Le groupe est sauvegardé en Redis",2);
         networkGroupManager.removeInvite(groupOwner);
-        assert user.getActualServer() != null;
-        if (!user.getActualServer().equalsIgnoreCase(groupOwner.getActualServer())) {
-            bungeeLogger.DebugV("téléportation de "+user.getName()+" vers "+ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName(),2);
-            ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+        assert getNetworkUser(user).getActualServer() != null;
+        if (!getNetworkUser(user).getActualServer().equalsIgnoreCase(getNetworkUser(groupOwner).getActualServer())) {
+            bungeeLogger.DebugV("téléportation de "+user+" vers "+ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo().getName(),2);
+            ProxyServer.getInstance().getPlayer(user).connect(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo());
         }
         return true;
     }
 
-    public boolean quitGroup(NetworkUser user){
+    public boolean quitGroup(UUID user){
         if (groupOwner.equals(user)) {
-            bungeeLogger.DebugV(user.getName()+" vient de quitter un groupe dont il était leader",2);
+            bungeeLogger.DebugV(user+" vient de quitter un groupe dont il était leader",2);
             if (playerList.size()-1 > 0){
                 bungeeLogger.DebugV("Transfert du lead",2);
 
@@ -94,20 +94,20 @@ public class NetworkGroup {
 
 
 
-    public boolean isInGroup(NetworkUser user){
+    public boolean isInGroup(UUID user){
         return playerList.contains(user) || groupOwner.equals(user);
     }
 
-    public boolean isGroupOwner(NetworkUser user){
+    public boolean isGroupOwner(UUID user){
         return groupOwner.equals(user);
     }
 
-    public List<NetworkUser> getPlayerList() {
+    public List<UUID> getPlayerList() {
         return playerList;
     }
 
     public NetworkUser getGroupOwner() {
-        return groupOwner;
+        return NetworkUser.getNetUserFromRedis(groupOwner);
     }
 
     public UUID getGroupUUID() {
@@ -119,7 +119,8 @@ public class NetworkGroup {
     }
 
     public void sendMessageToGroup(String msg){
-        for (NetworkUser nUser : playerList){
+        for (UUID uuid : playerList){
+            NetworkUser nUser = getNetworkUser(uuid);
             nUser.sendMessage(msg);
         }
     }
@@ -145,38 +146,41 @@ public class NetworkGroup {
         return groupTag;
     }
 
-    public void transfert(NetworkUser oldOwner, NetworkUser networkUser){
+    public void transfert(UUID oldOwner, UUID networkUser){
         this.groupOwner = networkUser;
-        this.groupUUID = networkUser.getUuid();
-        networkGroupManager.networkGroupList.remove(oldOwner.getUuid());
-        BungeeAPI.redisManager.delete("group:"+oldOwner.getUuid());
-        networkGroupManager.networkGroupList.put(networkUser.getUuid(), this);
-        BungeeAPI.redisManager.save("group:"+networkUser.getUuid(),this);
+        this.groupUUID = networkUser;
+        networkGroupManager.networkGroupList.remove(oldOwner);
+        BungeeAPI.redisManager.delete("group:"+oldOwner);
+        networkGroupManager.networkGroupList.put(networkUser, this);
+        BungeeAPI.redisManager.save("group:"+networkUser,this);
     }
-    public void teleportPlayer(NetworkUser user){
-        if (!ProxyServer.getInstance().getPlayer(user.getUuid()).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName())) {
-            ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+    public void teleportPlayer(UUID user){
+        if (!ProxyServer.getInstance().getPlayer(user).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo().getName())) {
+            ProxyServer.getInstance().getPlayer(user).connect(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo());
         }
     }
 
     public void teleportPlayers(){
-        for (NetworkUser user : playerList){
-            if (!ProxyServer.getInstance().getPlayer(user.getUuid()).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo().getName())) {
-                ProxyServer.getInstance().getPlayer(user.getUuid()).connect(ProxyServer.getInstance().getPlayer(groupOwner.getUuid()).getServer().getInfo());
+        for (UUID user : playerList){
+            if (!ProxyServer.getInstance().getPlayer(user).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo().getName())) {
+                ProxyServer.getInstance().getPlayer(user).connect(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo());
             }
         }
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof NetworkGroup other)) return false;
-        return groupUUID.equals(other.groupUUID);
+    public NetworkUser getNetworkUser(UUID uuid){
+        return NetworkUser.getNetUserFromRedis(uuid);
     }
 
-    @Override
-    public int hashCode() {
-        return groupUUID.hashCode();
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) return true;
+//        if (!(obj instanceof NetworkGroup other)) return false;
+//        return groupUUID.equals(other.groupUUID);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return groupUUID.hashCode();
+//    }
 }

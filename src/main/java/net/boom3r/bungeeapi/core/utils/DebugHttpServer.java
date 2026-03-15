@@ -30,6 +30,7 @@ public class DebugHttpServer {
         server.createContext("/", this::handleIndex);
         server.createContext("/users", this::handleUsers);
         server.createContext("/groups", this::handleGroups);
+        server.createContext("/debug", this::handleDebug);
         server.setExecutor(null); // default executor
         server.start();
     }
@@ -70,8 +71,8 @@ public class DebugHttpServer {
         for (NetworkGroup group : groups.values()) {
             sb.append("<tr><td>").append(group.getGroupUUID()).append("</td><td>")
                     .append(escapeHtml(group.getGroupOwner().getName())).append("</td><td>");
-            for (NetworkUser member : group.getPlayerList()) {
-                sb.append(escapeHtml(member.getName())).append(" ");
+            for (UUID member : group.getPlayerList()) {
+                sb.append(escapeHtml(NetworkUser.getNetUserFromRedis(member).getName())).append(" ");
             }
             sb.append("</td></tr>");
         }
@@ -98,19 +99,32 @@ public class DebugHttpServer {
                 .replace("'","&#39;");
     }
 
-    private void handle(HttpExchange exchange) throws IOException {
+    private void handleDebug(HttpExchange exchange) throws IOException {
         Map<UUID, NetworkGroup> groups = groupManager.getNetworkGroupList();
+        Map<UUID, NetworkUser> users = networkManager.getNetworkUserList();
         StringBuilder sb = new StringBuilder("<html><body><h1>Network Groups</h1><table border=\"1\">");
         sb.append("<tr><th>Group UUID</th><th>Owner</th><th>Members</th></tr>");
         for (NetworkGroup group : groups.values()) {
             sb.append("<tr><td>").append(group.getGroupUUID()).append("</td><td>")
                     .append(escapeHtml(group.getGroupOwner().getName())).append("</td><td>");
-            for (NetworkUser member : group.getPlayerList()) {
-                sb.append(escapeHtml(member.getName())).append(" ");
+            for (UUID member : group.getPlayerList()) {
+                sb.append(escapeHtml(NetworkUser.getNetUserFromRedis(member).getName())).append(" ");
             }
             sb.append("</td></tr>");
+
+        }
+        sb.append("</table><p></p><p></p><h1>Network Users</h1><table border=\"1\">");
+        sb.append("<tr><th>UUID</th><th>Name</th><th>Online</th><th>lastServer</th><th>actualServer</th></tr>");
+        for (NetworkUser user : users.values()) {
+            sb.append("<tr><td>").append(user.getUuid()).append("</td><td>")
+                    .append(escapeHtml(user.getName())).append("</td><td>")
+                    .append(user.isOnline()).append("</td><td>")
+                    .append(user.getLastServer()).append("</td><td>")
+                    .append(user.getActualServer()).append("</td></tr>");
         }
         sb.append("</table></body></html>");
+
         sendHtml(exchange, sb.toString());
     }
+
 }

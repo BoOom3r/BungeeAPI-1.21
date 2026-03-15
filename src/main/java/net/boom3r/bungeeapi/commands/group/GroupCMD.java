@@ -36,7 +36,7 @@ public class GroupCMD extends Command {
             bungeeLogger.DebugV("La commande group à été faite avec comme subcommand "+args[0],3);
             // CREATION DE GROUPE
             if (args[0].equalsIgnoreCase("create")){
-                if (networkManager.networkGroupManager.isInExistingGroup(nSender)){
+                if (networkManager.networkGroupManager.isInExistingGroup(nSender.getUuid())){
                     bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe",3);
                     return;
                 }
@@ -44,7 +44,7 @@ public class GroupCMD extends Command {
                 if (args.length == 1){
                     bungeeLogger.DebugV("Création du groupe",3);
                     //nSender.sendMessage("Création du groupe");
-                    BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, null, null);
+                    BungeeAPI.networkManager.networkGroupManager.createGroup(nSender.getUuid(), null, null);
                     return;
                 }
                 // group create <name>
@@ -57,7 +57,7 @@ public class GroupCMD extends Command {
                     } else {
                         bungeeLogger.DebugV("Création du groupe avec le nom "+args[1],3);
                         //nSender.sendMessage("Création du groupe avec le nom "+args[1]);
-                        BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, args[1], null);
+                        BungeeAPI.networkManager.networkGroupManager.createGroup(nSender.getUuid(), args[1], null);
                         //BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, groupName, null);
                         return;
                     }
@@ -76,7 +76,7 @@ public class GroupCMD extends Command {
                         } else {
                             bungeeLogger.DebugV("Création du groupe avec le nom "+args[1]+" et le tag "+args[2], 3);
                             //nSender.sendMessage("Création du groupe avec le nom "+args[1]+" et le tag "+args[2]);
-                            BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, args[1], args[2]);
+                            BungeeAPI.networkManager.networkGroupManager.createGroup(nSender.getUuid(), args[1], args[2]);
                             //BungeeAPI.networkManager.networkGroupManager.createGroup(nSender, groupName, null);
                             return;
                         }
@@ -87,12 +87,12 @@ public class GroupCMD extends Command {
             }
             // DESTRUCTION D UN GROUPE
             if (args[0].equalsIgnoreCase("destroy") || args[0].equalsIgnoreCase("delete") ) {
-                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
+                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(((ProxiedPlayer) sender).getUniqueId())){
                     bungeeLogger.DebugV("Destruction du groupe",3);
                     if (args.length == 2){
-                        NetworkUser quitter = networkManager.networkUserList.get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                        NetworkUser quitter = NetworkUser.getNetUserFromRedis(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
                         if (quitter != null) {
-                            networkManager.networkGroupManager.getUserGroup(quitter).quitGroup(quitter);
+                            networkManager.networkGroupManager.getUserGroup(quitter.getUuid()).quitGroup(quitter.getUuid());
                         }
                     } else {
                         wrongUsage(nSender);
@@ -105,10 +105,10 @@ public class GroupCMD extends Command {
 
             // DEPART D UN GROUPE
             if (args[0].equalsIgnoreCase("quit")) {
-                if (BungeeAPI.networkManager.networkGroupManager.isInExistingGroup(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))){
+                if (BungeeAPI.networkManager.networkGroupManager.isInExistingGroup(nSender.getUuid())){
                     bungeeLogger.DebugV("Départ du groupe - quit",3);
                     if (args.length == 1){
-                        networkManager.networkGroupManager.getUserGroup(nSender).quitGroup(nSender);
+                        networkManager.networkGroupManager.getUserGroup(nSender.getUuid()).quitGroup(nSender.getUuid());
                         nSender.sendMessage("Tu as quitté ton groupe !");
                     } else {
                         wrongUsage(nSender);
@@ -122,7 +122,7 @@ public class GroupCMD extends Command {
 
             // INVITATION A UN GROUPE
             if (args[0].equalsIgnoreCase("invite")) {
-                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(nSender)){
+                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(nSender.getUuid())){
                     if (args.length == 1){
                         bungeeLogger.DebugV("Ouverture du menu d'invitation de groupe",3);
 
@@ -136,7 +136,7 @@ public class GroupCMD extends Command {
                             // Est-ce que le NetUser existe
                             if (toInvite != null) {
                                 bungeeLogger.DebugV("Invitation du joueur avec le pseudo " + args[1], 2);
-                                BungeeAPI.networkManager.networkGroupManager.sendInvite(nSender, toInvite);
+                                BungeeAPI.networkManager.networkGroupManager.sendInvite(nSender.getUuid(), toInvite.getUuid());
                             } else {
                                 bungeeLogger.DebugV("Invitation raté du joueur avec le pseudo " + args[1], 2);
                                 nSender.sendMessage("Invitation au groupe impossible : ce joueur n'existe pas");
@@ -155,7 +155,7 @@ public class GroupCMD extends Command {
 
             if (args[0].equalsIgnoreCase("add")) {
                 if (sender.hasPermission("bungeeAPI.group.add")) {
-                    if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))) {
+                    if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner((nSender.getUuid()))) {
 
                             if (args.length == 1) {
                                 bungeeLogger.DebugV("Ouverture du menu d'invitation de groupe forcé", 2);
@@ -181,14 +181,14 @@ public class GroupCMD extends Command {
             }
 
             if (args[0].equalsIgnoreCase("transfert")) {
-                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()))
+                if (BungeeAPI.networkManager.networkGroupManager.isGroupOwner((nSender.getUuid()))
                     || sender.hasPermission("bungeeAPI.group.admin")){
                     if (args.length == 2){
                         ProxiedPlayer toTransfert = ProxyServer.getInstance().getPlayer(args[1]);
                         if (toTransfert != null) {
                             bungeeLogger.DebugV("Transfert du lead au joueur" + args[1], 2);
-                            NetworkGroup oldGroup = BungeeAPI.networkManager.networkGroupManager.getUserGroup(BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId()));
-                            oldGroup.transfert(nSender, BungeeAPI.networkManager.networkUserList.get(toTransfert.getUniqueId()));
+                            NetworkGroup oldGroup = BungeeAPI.networkManager.networkGroupManager.getUserGroup(((ProxiedPlayer) sender).getUniqueId());
+                            oldGroup.transfert(nSender.getUuid(), toTransfert.getUniqueId());
                             //nSender.sendMessage("Création du groupe avec le nom "+args[1]);
 
                         }
@@ -206,13 +206,13 @@ public class GroupCMD extends Command {
                 if (args.length == 2) {
                     NetworkUser toJoin = networkManager.getNetworkUserList().get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
                     if (toJoin != null) {
-                        if (networkManager.networkGroupManager.isInExistingGroup(nSender)) {
+                        if (networkManager.networkGroupManager.isInExistingGroup(nSender.getUuid())) {
                             bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe", 3);
                             return;
                         }
                         bungeeLogger.DebugV("Join du joueur " + nSender.getName() + " au groupe du joueur " + toJoin.getName(), 2);
                         // Si joueur a une demande
-                        networkManager.networkGroupManager.getUserGroup(toJoin).joinGroup(nSender);
+                        networkManager.networkGroupManager.getUserGroup(toJoin.getUuid()).joinGroup(nSender.getUuid());
                         nSender.sendMessage("Tu viens de rejoindre le groupe de "+args[1]+" !");
                         //nSender.sendMessage("Création du groupe avec le nom "+args[1]);
 
