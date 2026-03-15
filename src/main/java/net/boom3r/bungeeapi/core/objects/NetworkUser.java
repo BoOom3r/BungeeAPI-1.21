@@ -2,6 +2,7 @@ package net.boom3r.bungeeapi.core.objects;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -89,6 +90,10 @@ public class NetworkUser {
         NetworkUser nUser = null;
         nUser = redisManager.load("network_user:"+uuid, NetworkUser.class);
         return nUser;
+    }
+
+    public ProxiedPlayer getPlayer(){
+        return ProxyServer.getInstance().getPlayer(uuid);
     }
 
     public String getActualServer() {

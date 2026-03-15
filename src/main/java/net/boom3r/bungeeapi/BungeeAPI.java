@@ -8,13 +8,11 @@ import net.boom3r.bungeeapi.commands.MaintenanceCMD;
 import net.boom3r.bungeeapi.commands.ServerManagerCMD;
 import net.boom3r.bungeeapi.commands.group.GroupCMD;
 import net.boom3r.bungeeapi.commands.group.NetworkGroup;
-import net.boom3r.bungeeapi.core.DebugHttpServer;
+import net.boom3r.bungeeapi.core.utils.DebugHttpServer;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
-import net.boom3r.bungeeapi.core.listeners.RedisPubSubListener;
 import net.boom3r.bungeeapi.core.managers.*;
 import net.boom3r.bungeeapi.core.objects.NetworkConf;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.core.services.PubSubService;
 import net.boom3r.bungeeapi.runnables.ScheduledRunner;
 import net.md_5.bungee.api.ChatColor;
@@ -32,7 +30,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 public final class BungeeAPI extends Plugin {

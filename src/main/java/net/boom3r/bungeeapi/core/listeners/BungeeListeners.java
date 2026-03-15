@@ -46,6 +46,7 @@ public class BungeeListeners implements Listener {
                 NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString());
                 newUser.moveServer(null, "lobby");
                 newUser.setOnline();
+                redisManager.save("network_user:"+newUser.getUuid().toString(), newUser);
                 AddEvent("BungeeConMaint",
                         event.getPlayer().getUniqueId().toString(),
                         "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}"
@@ -58,7 +59,7 @@ public class BungeeListeners implements Listener {
             NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
             newUser.moveServer(null, "lobby");
             newUser.setOnline();
-
+            redisManager.save("network_user:"+newUser.getUuid().toString(), newUser);
             AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
 
         }
@@ -97,6 +98,8 @@ public class BungeeListeners implements Listener {
         if(event.getFrom() != null){
             bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()+ " pour aller vers "+event.getPlayer().getServer().getInfo().getName()));
             bungeeInstance.getNetworkManager().getNetworkUserMap().get(event.getPlayer().getUniqueId()).moveServer(event.getFrom().getName(), event.getPlayer().getServer().getInfo().getName());
+            NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserList().get(event.getPlayer().getUniqueId());
+            redisManager.save("network_user:"+user.getUuid().toString(), user);
         }
     }
 

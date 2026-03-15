@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.core;
+package net.boom3r.bungeeapi.core.utils;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
