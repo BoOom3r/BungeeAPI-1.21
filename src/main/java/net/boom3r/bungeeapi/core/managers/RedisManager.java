@@ -17,6 +17,7 @@ public class RedisManager {
     //private final Gson gson = new Gson();
     private final Gson gson = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT)
+            .serializeNulls()
             .create();
 
     public RedisManager(String host, int port, @Nullable String password) {
@@ -26,11 +27,14 @@ public class RedisManager {
         pool.getResource().select(0);
     }
 
-    public <T> void save(String key, T object) {
-        if (!redisEnabled) return;
+    public <T> boolean save(String key, T object) {
+        if (!redisEnabled) return false;
         try (Jedis jedis = pool.getResource()) {
             String json = gson.toJson(object);   // sérialisation en JSON
             jedis.set(key, json);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

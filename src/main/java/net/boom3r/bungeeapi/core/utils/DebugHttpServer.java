@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
 
 public class DebugHttpServer {
 
@@ -27,9 +30,6 @@ public class DebugHttpServer {
 
     public void start(int port) throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", this::handleIndex);
-        server.createContext("/users", this::handleUsers);
-        server.createContext("/groups", this::handleGroups);
         server.createContext("/debug", this::handleDebug);
         server.setExecutor(null); // default executor
         server.start();
@@ -41,44 +41,6 @@ public class DebugHttpServer {
         }
     }
 
-    private void handleIndex(HttpExchange exchange) throws IOException {
-        String html = "<html><body><h1>Debug endpoints</h1><ul>"
-                + "<li><a href=\"/users\">/users</a> &ndash; liste des NetworkUser</li>"
-                + "<li><a href=\"/groups\">/groups</a> &ndash; liste des NetworkGroup</li>"
-                + "</ul></body></html>";
-        sendHtml(exchange, html);
-    }
-
-    private void handleUsers(HttpExchange exchange) throws IOException {
-        Map<UUID, NetworkUser> users = networkManager.getNetworkUserList();
-        StringBuilder sb = new StringBuilder("<html><body><h1>Network Users</h1><table border=\"1\">");
-        sb.append("<tr><th>UUID</th><th>Name</th><th>Online</th><th>lastServer</th><th>actualServer</th></tr>");
-        for (NetworkUser user : users.values()) {
-            sb.append("<tr><td>").append(user.getUuid()).append("</td><td>")
-                    .append(escapeHtml(user.getName())).append("</td><td>")
-                    .append(user.isOnline()).append("</td><td>")
-                    .append(user.getLastServer()).append("</td><td>")
-                    .append(user.getActualServer()).append("</td></tr>");
-        }
-        sb.append("</table></body></html>");
-        sendHtml(exchange, sb.toString());
-    }
-
-    private void handleGroups(HttpExchange exchange) throws IOException {
-        Map<UUID, NetworkGroup> groups = groupManager.getNetworkGroupList();
-        StringBuilder sb = new StringBuilder("<html><body><h1>Network Groups</h1><table border=\"1\">");
-        sb.append("<tr><th>Group UUID</th><th>Owner</th><th>Members</th></tr>");
-        for (NetworkGroup group : groups.values()) {
-            sb.append("<tr><td>").append(group.getGroupUUID()).append("</td><td>")
-                    .append(escapeHtml(group.getGroupOwner().getName())).append("</td><td>");
-            for (UUID member : group.getPlayerList()) {
-                sb.append(escapeHtml(NetworkUser.getNetUserFromRedis(member).getName())).append(" ");
-            }
-            sb.append("</td></tr>");
-        }
-        sb.append("</table></body></html>");
-        sendHtml(exchange, sb.toString());
-    }
 
     private void sendHtml(HttpExchange exchange, String html) throws IOException {
         byte[] bytes = html.getBytes(StandardCharsets.UTF_8);
@@ -100,11 +62,11 @@ public class DebugHttpServer {
     }
 
     private void handleDebug(HttpExchange exchange) throws IOException {
-        Map<UUID, NetworkGroup> groups = groupManager.getNetworkGroupList();
-        Map<UUID, NetworkUser> users = networkManager.getNetworkUserList();
+
+
         StringBuilder sb = new StringBuilder("<html><body><h1>Network Groups</h1><table border=\"1\">");
         sb.append("<tr><th>Group UUID</th><th>Owner</th><th>Members</th></tr>");
-        for (NetworkGroup group : groups.values()) {
+        for (NetworkGroup group : groupManager.getNetworkGroupList().values()) {
             sb.append("<tr><td>").append(group.getGroupUUID()).append("</td><td>")
                     .append(escapeHtml(group.getGroupOwner().getName())).append("</td><td>");
             for (UUID member : group.getPlayerList()) {
@@ -115,7 +77,8 @@ public class DebugHttpServer {
         }
         sb.append("</table><p></p><p></p><h1>Network Users</h1><table border=\"1\">");
         sb.append("<tr><th>UUID</th><th>Name</th><th>Online</th><th>lastServer</th><th>actualServer</th></tr>");
-        for (NetworkUser user : users.values()) {
+        for (UUID uuid : networkManager.getNetworkUserList()) {
+            NetworkUser user = NetworkUser.getNetUserFromRedis(uuid);
             sb.append("<tr><td>").append(user.getUuid()).append("</td><td>")
                     .append(escapeHtml(user.getName())).append("</td><td>")
                     .append(user.isOnline()).append("</td><td>")

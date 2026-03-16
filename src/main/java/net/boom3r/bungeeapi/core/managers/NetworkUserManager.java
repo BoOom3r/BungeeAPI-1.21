@@ -8,13 +8,39 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+import static net.boom3r.bungeeapi.BungeeAPI.*;
+import static net.boom3r.bungeeapi.BungeeAPI.redisEnabled;
+import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
 
 public class NetworkUserManager {
 
+    public List<UUID> networkUserList;
+
+    public NetworkUserManager (){
+        networkUserList = new ArrayList<>();
+    }
+
+    public void addNetworkUser(UUID uuid, NetworkUser nUser){
+        updateNetworkUserDB(nUser);
+        if (!networkUserList.contains(uuid)) networkUserList.add(uuid);
+        redisManager.save("network_user_list",networkUserList);
+        redisManager.save("network_user:"+uuid,nUser);
+
+    }
+
+    public void removeNetworkUser(UUID uuid){
+        //networkUserManager.updateNetworkUserDB(nUser);
+        if (networkUserList.contains(uuid)) networkUserList.remove(uuid);
+
+        redisManager.save("network_user_list",networkUserList);
+        redisManager.delete("network_user:"+uuid);
+
+    }
 
     public boolean updateNetworkUserDB(NetworkUser user) {
         boolean retour = false;

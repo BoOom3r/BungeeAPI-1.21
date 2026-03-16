@@ -22,7 +22,7 @@ public class FriendCMD extends Command {
         bungeeLogger.DebugV(DebugUtils.debugCommand("friend",args),2);
         if (sender instanceof ProxiedPlayer){
             bungeeLogger.DebugV("La commande group à été faite",2);
-            NetworkUser nSender = BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId());
+            NetworkUser nSender = NetworkUser.getNetUserFromRedis(((ProxiedPlayer) sender).getUniqueId());
             if(args.length == 1){
                 //ouverture du menu friend
             }

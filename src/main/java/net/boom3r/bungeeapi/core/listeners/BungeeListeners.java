@@ -19,6 +19,7 @@ public class BungeeListeners implements Listener {
 
     @EventHandler
     public void onPostLogin(PostLoginEvent event) {
+        bungeeLogger.DebugV("PostLogin - "+event.getPlayer().getName(),3);
         if (whitelistEnabled) {
             if (WhiteListManager.isWhiteListed(event.getPlayer())) {
                 for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
@@ -33,23 +34,24 @@ public class BungeeListeners implements Listener {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 player.sendMessage(new TextComponent(event.getPlayer().getName() + " a rejoins le network !"));
             }
-            NetworkUser user = NetworkUser.getNetUserFromRedis(event.getPlayer().getUniqueId());
-            user.moveServer(null, "lobby");
-            redisManager.save("network_user:"+user.getUuid().toString(), user);
+
             AddEvent("BungeeConWL", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
         }
+
     }
 
     @EventHandler
     public void onPlayerConnect(ServerConnectEvent event){
+        bungeeLogger.DebugV("ServerConnectEvent - "+event.getPlayer().getName(),3);
         ProxiedPlayer player = event.getPlayer();
         if(BungeeAPI.maintenance) {
             if ((player.hasPermission("bungeeAPI.maintenance." + event.getTarget().getName().toLowerCase(Locale.ROOT))) || (player.hasPermission("bungeeAPI.maintenance.global"))) {
 
                 NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString());
-                newUser.moveServer(null, "lobby");
+                newUser.moveServer("hisroom", "lobby");
                 newUser.setOnline();
                 redisManager.save("network_user:"+newUser.getUuid().toString(), newUser);
+                bungeeLogger.DebugV("Enregistrement en REDIS du user "+newUser.getName(),2);
                 AddEvent("BungeeConMaint",
                         event.getPlayer().getUniqueId().toString(),
                         "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}"
@@ -59,10 +61,17 @@ public class BungeeListeners implements Listener {
                 player.disconnect(BungeeAPI.getFormatedMessage("Désolé, tu n'es pas autorisé à rejoindre pendant la maintenance"));
             }
         } else {
-            NetworkUser newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
-            newUser.moveServer(null, "lobby");
-            newUser.setOnline();
-            redisManager.save("network_user:"+newUser.getUuid().toString(), newUser);
+            NetworkUser newUser = NetworkUser.getNetUserFromRedis(event.getPlayer().getUniqueId());
+            if (newUser == null) {
+                newUser = new NetworkUser(event.getPlayer().getUniqueId(),event.getPlayer().getName(),event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':')));
+                newUser.moveServer("hisroom", "lobby");
+                newUser.setOnline();
+                if (redisManager.save("network_user:"+newUser.getUuid().toString(), newUser)) bungeeLogger.DebugV("Enregistrement en REDIS du user"+newUser.getName()+" : "+newUser.toJson().toString(),2);
+            } else {
+                bungeeLogger.DebugV("Chargement à partir de REDIS du user "+newUser.getName(),2);
+            }
+
+
             AddEvent("BungeeCon", event.getPlayer().getUniqueId().toString(), "{\"ip\": " +event.getPlayer().getSocketAddress().toString().substring(1, event.getPlayer().getSocketAddress().toString().indexOf(':'))+", \"player\": "+ event.getPlayer().getName()+"}");
 
         }
@@ -70,7 +79,7 @@ public class BungeeListeners implements Listener {
 
     @EventHandler
     public void onPreLogin(PreLoginEvent event) {
-
+        bungeeLogger.DebugV("PreLoginEvent - "+event.getConnection().getSocketAddress(),3);
         bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getConnection().getSocketAddress() + " a tenté la co !"));
         AddEvent("BungeePreCon", "NO_OWNER", "{\"ip\": " +event.getConnection().getSocketAddress().toString().substring(1, event.getConnection().getSocketAddress().toString().indexOf(':'))+"}");
     }
@@ -80,7 +89,7 @@ public class BungeeListeners implements Listener {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             player.sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " nous a quitté..."));
         }
-        NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserList().get(event.getPlayer().getUniqueId());
+        NetworkUser user = NetworkUser.getNetUserFromRedis(event.getPlayer().getUniqueId());
         user.setOffline();
         if (bungeeInstance.getNetworkManager().networkGroupManager.isInExistingGroup(user.getUuid())){
             bungeeLogger.DebugV("le joueur était dans un groupe : ",3);
@@ -92,16 +101,18 @@ public class BungeeListeners implements Listener {
         }
         networkManager.networkGroupManager.saveInRedis();
         //redisManager.delete("network_user:"+user.getUuid());
-        networkManager.removeNetworkUser(user.getUuid());
+        networkManager.getNetworkUserManager().removeNetworkUser(user.getUuid());
     }
 
 
     @EventHandler
     public void on(ServerSwitchEvent event) {
+        bungeeLogger.DebugV("ServerSwitchEvent - "+event.getPlayer().getName(),3);
         if(event.getFrom() != null){
-            bungeeInstance.getProxy().getConsole().sendMessage(new TextComponent(event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()+ " pour aller vers "+event.getPlayer().getServer().getInfo().getName()));
-            bungeeInstance.getNetworkManager().getNetworkUserMap().get(event.getPlayer().getUniqueId()).moveServer(event.getFrom().getName(), event.getPlayer().getServer().getInfo().getName());
-            NetworkUser user = bungeeInstance.getNetworkManager().getNetworkUserList().get(event.getPlayer().getUniqueId());
+            bungeeLogger.DebugV(getClass().getName()+">>"+event.getPlayer().getDisplayName() + " viens de " + event.getFrom().getName()+ " pour aller vers "+event.getPlayer().getServer().getInfo().getName(),3);
+            NetworkUser user = NetworkUser.getNetUserFromRedis(event.getPlayer().getUniqueId());
+            user.moveServer(event.getFrom().getName(), event.getPlayer().getServer().getInfo().getName());
+            bungeeLogger.DebugV(getClass().getName()+">>Sauvegarde de "+user.toJson(),3);
             redisManager.save("network_user:"+user.getUuid().toString(), user);
         }
     }

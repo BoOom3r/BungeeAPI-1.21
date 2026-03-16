@@ -1,5 +1,6 @@
 package net.boom3r.bungeeapi.core.objects;
 
+import com.google.gson.Gson;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -19,8 +20,8 @@ public class NetworkUser {
     private String ip;
     private boolean online;
     private boolean isLinked;
-    private @Nullable String actualServer;
-    private @Nullable String lastServer;
+    private String actualServer;
+    private String lastServer;
     private List<UUID> friendList = new ArrayList<>();
 
 
@@ -34,7 +35,7 @@ public class NetworkUser {
         this.actualServer = null;
         this.lastServer = null;
 
-        networkManager.addNetworkUser(uuid, this);
+        networkManager.networkUserManager.addNetworkUser(uuid, this);
     }
     public NetworkUser(UUID uuid, String name, String ip) {
         this.uuid = uuid;
@@ -43,10 +44,10 @@ public class NetworkUser {
         this.online = true;
         this.isLinked = false;
         this.friendList = new ArrayList<>();
-        this.actualServer = null;
-        this.lastServer = null;
+        this.actualServer = "hisroom";
+        this.lastServer = "hisroom";
 
-        networkManager.addNetworkUser(uuid, this);
+        networkManager.networkUserManager.addNetworkUser(uuid, this);
 
     }
 
@@ -104,9 +105,15 @@ public class NetworkUser {
         return lastServer;
     }
 
+    public String toJson(){
+        Gson json = new Gson();
+        return json.toJson(this);
+    }
+
     public void moveServer(String oldServer, String newServer){
         this.lastServer = oldServer;
         this.actualServer = newServer;
+        bungeeLogger.DebugV(getClass().getName()+"le joueur "+this.getName()+" va vers "+newServer+". Il vient de "+oldServer,3);
     }
 
     public static NetworkUser getNetUserFromRedis(UUID uuid){

@@ -21,7 +21,7 @@ public class GroupCMD extends Command {
         bungeeLogger.DebugV(DebugUtils.debugCommand("group",args),2);
         if (sender instanceof ProxiedPlayer){
             bungeeLogger.DebugV("La commande group à été faite avec "+args.length+" argument(s)",2);
-            NetworkUser nSender = BungeeAPI.networkManager.networkUserList.get(((ProxiedPlayer) sender).getUniqueId());
+            NetworkUser nSender = NetworkUser.getNetUserFromRedis(((ProxiedPlayer) sender).getUniqueId());
             if (nSender == null) {
                 bungeeLogger.DebugV("Erreur dans la récupération du NetworkSender",3);
                 return;
@@ -132,7 +132,7 @@ public class GroupCMD extends Command {
                         ProxiedPlayer proxiedReceiver = ProxyServer.getInstance().getPlayer(args[1]);
                         // Est-ce que le joueur existe
                         if (proxiedReceiver != null) {
-                            NetworkUser toInvite = networkManager.networkUserList.get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                            NetworkUser toInvite = NetworkUser.getNetUserFromRedis(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
                             // Est-ce que le NetUser existe
                             if (toInvite != null) {
                                 bungeeLogger.DebugV("Invitation du joueur avec le pseudo " + args[1], 2);
@@ -204,7 +204,7 @@ public class GroupCMD extends Command {
 
             if (args[0].equalsIgnoreCase("join")) {
                 if (args.length == 2) {
-                    NetworkUser toJoin = networkManager.getNetworkUserList().get(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                    NetworkUser toJoin = NetworkUser.getNetUserFromRedis(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
                     if (toJoin != null) {
                         if (networkManager.networkGroupManager.isInExistingGroup(nSender.getUuid())) {
                             bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe", 3);

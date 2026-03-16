@@ -11,7 +11,6 @@ import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 public class NetworkSysEvent {
 
     public static boolean AddEvent(String name, String owner, String info){
-        boolean result = false;
 
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
              PreparedStatement statement = sql.prepareStatement("INSERT INTO network_sys_events (NAME, OWNER, info) VALUES (?, ?, ?)");
