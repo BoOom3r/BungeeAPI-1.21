@@ -7,9 +7,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static net.boom3r.bungeeapi.BungeeAPI.*;
 
@@ -65,8 +63,8 @@ public class NetworkGroup {
             bungeeLogger.DebugV(user+" vient de quitter un groupe dont il était leader",2);
             if (playerList.size()-1 > 0){
                 bungeeLogger.DebugV("Transfert du lead",2);
-
-                saveInRedis();
+                this.transfert(user);
+                //saveInRedis();
                 //transfert lead
                 //BungeeAPI.redisManager.save("group:"+groupUUID,this);
                 networkGroupManager.removeInvite(user);
@@ -154,6 +152,25 @@ public class NetworkGroup {
         networkGroupManager.networkGroupList.put(networkUser, this);
         BungeeAPI.redisManager.save("group:"+networkUser,this);
     }
+
+    public void transfert(UUID oldOwner){
+        if (this.playerList.size() > 1){
+            List<UUID>toShuffle = playerList;
+            Collections.shuffle(toShuffle);
+            this.groupOwner = toShuffle.getFirst();
+            this.groupUUID = toShuffle.getFirst();
+        } else {
+            this.groupOwner = playerList.getFirst();
+            this.groupUUID = playerList.getFirst();
+        }
+
+        networkGroupManager.networkGroupList.remove(oldOwner);
+        BungeeAPI.redisManager.delete("group:"+oldOwner);
+        networkGroupManager.networkGroupList.put(this.groupUUID, this);
+        BungeeAPI.redisManager.save("group:"+this.groupUUID,this);
+        bungeeLogger.DebugV("Transfert du group vers "+this.getGroupUUID()+". Sauvegarde en Redis de"+this.toJson(),2 );
+    }
+
     public void teleportPlayer(UUID user){
         if (!ProxyServer.getInstance().getPlayer(user).getServer().getInfo().getName().equalsIgnoreCase(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo().getName())) {
             ProxyServer.getInstance().getPlayer(user).connect(ProxyServer.getInstance().getPlayer(groupOwner).getServer().getInfo());
