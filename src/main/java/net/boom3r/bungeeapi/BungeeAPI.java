@@ -2,10 +2,8 @@ package net.boom3r.bungeeapi;
 
 import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariDataSource;
-import net.boom3r.bungeeapi.commands.GlobalKickCMD;
-import net.boom3r.bungeeapi.commands.HubCMD;
-import net.boom3r.bungeeapi.commands.MaintenanceCMD;
-import net.boom3r.bungeeapi.commands.ServerManagerCMD;
+import net.boom3r.bungeeapi.commands.*;
+import net.boom3r.bungeeapi.commands.friends.FriendCommand;
 import net.boom3r.bungeeapi.commands.group.GroupCMD;
 import net.boom3r.bungeeapi.commands.group.NetworkGroup;
 import net.boom3r.bungeeapi.core.utils.DebugHttpServer;
@@ -73,8 +71,13 @@ public final class BungeeAPI extends Plugin {
         // Enregistrement des listeners
         getProxy().getPluginManager().registerListener(bungeeInstance, new BungeeListeners());
         getProxy().getPluginManager().registerListener(bungeeInstance, new MOTDListener());
+
+        bungeeLogger.Info("Chargement des Commandes");
+        BungeeCommandManager manager = new BungeeCommandManager(this);
+        manager.register(new ServerManagerCMD());
+        manager.register(new FriendCommand());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new HubCMD());
-        getProxy().getPluginManager().registerCommand(bungeeInstance, new ServerManagerCMD());
+        getProxy().getPluginManager().registerCommand(bungeeInstance, new ServerManagerCMD_OLD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new MaintenanceCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new GlobalKickCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new GroupCMD());

@@ -26,7 +26,7 @@ public class ScheduledRunner implements Runnable {
      */
     public void start() {
         if (task != null) {
-            plugin.getLogger().warning("Le runner est déjà démarré !");
+            bungeeLogger.Warn("Le runner est déjà démarré !");
             return;
         }
 
@@ -47,7 +47,7 @@ public class ScheduledRunner implements Runnable {
         if (task != null) {
             task.cancel();
             task = null;
-            plugin.getLogger().info("Le runner périodique a été arrêté.");
+            bungeeLogger.DebugV("Le runner périodique a été arrêté.",2);
         }
     }
 
@@ -56,7 +56,7 @@ public class ScheduledRunner implements Runnable {
      */
     @Override
     public void run() {
-        plugin.getLogger().info("Tâche périodique exécutée à " + System.currentTimeMillis());
+        bungeeLogger.DebugV("Tâche périodique exécutée à " + System.currentTimeMillis(),3);
 
         try {
             // ==============================
@@ -75,10 +75,10 @@ public class ScheduledRunner implements Runnable {
                 serverManager.refreshServerInstance();
                 serverManager.clearServerListUpdateFlag();
             }
-            bungeeLogger.Info("Refresh exécutée à " + System.currentTimeMillis());
+            bungeeLogger.DebugV("Refresh exécutée à " + System.currentTimeMillis(),3);
 
         } catch (Exception e) {
-            plugin.getLogger().severe("Erreur pendant l’exécution du runner : " + e.getMessage());
+            bungeeLogger.Err("Erreur pendant l’exécution du runner : " + e.getMessage());
             e.printStackTrace();
         }
     }

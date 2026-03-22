@@ -5,6 +5,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -14,14 +16,11 @@ import java.util.List;
 import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
 import static net.boom3r.bungeeapi.BungeeAPI.serverManager;
 
+public class ServerManagerCMD_OLD extends Command implements TabExecutor {
 
-public class ServerManagerCMD implements BungeeCommand {
-    @Override
-    public String getName() { return "servermanager"; }
-    @Override
-    public String getPermission() { return "bungeeAPI.admin.servermanager"; }
-    @Override
-    public List<String> getAliases() { return List.of("svrman"); }
+    public ServerManagerCMD_OLD() {
+        super("servermanager", "bungeeAPI.admin.servermanager");
+    }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
@@ -29,11 +28,14 @@ public class ServerManagerCMD implements BungeeCommand {
             sender.sendMessage(new ComponentBuilder("This command can only be run by a player!").color(ChatColor.RED).create());
             return;
         }
+
         ProxiedPlayer player = (ProxiedPlayer) sender;
+
         if (args.length < 1) {
-            sender.sendMessage(new ComponentBuilder("§cUsage: /servermanager add|remove …").create());
+            player.sendMessage(new ComponentBuilder("§cUsage: /servermanager add|remove <name> [host] [port] [motd]").create());
             return;
         }
+
         switch (args[0].toLowerCase()) {
             case "add" -> {
                 if (args.length < 4) {
@@ -55,8 +57,8 @@ public class ServerManagerCMD implements BungeeCommand {
                         " via " + host + ":" + port + " avec MOTD : " + motd);
 
                 ServerManager.addServer(name, new InetSocketAddress(host, port), motd, false);
-
             }
+
             case "remove" -> {
                 if (args.length < 2) {
                     player.sendMessage(new ComponentBuilder("§cUsage: /servermanager remove <name>").create());
@@ -65,12 +67,14 @@ public class ServerManagerCMD implements BungeeCommand {
 
                 ServerManager.removeServer(args[1]);
             }
-            default -> sender.sendMessage(new ComponentBuilder("§cUsage: /servermanager add|remove …").create());
+
+            default -> player.sendMessage(new ComponentBuilder("§cUsage: /servermanager add|remove <args>").create());
         }
     }
 
+    // 🧠 Autocomplétion ici
     @Override
-    public List<String> tabComplete(CommandSender sender, String[] args) {
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
@@ -88,7 +92,5 @@ public class ServerManagerCMD implements BungeeCommand {
         }
 
         return completions;
-
     }
 }
-

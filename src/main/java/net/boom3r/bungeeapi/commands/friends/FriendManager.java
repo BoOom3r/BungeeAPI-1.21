@@ -1,11 +1,7 @@
 package net.boom3r.bungeeapi.commands.friends;
 
-import com.mojang.brigadier.Command;
-import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -65,6 +61,72 @@ public class FriendManager {
             e.printStackTrace();
         }
     }
+
+    public static void acceptInvite(UUID sender, UUID me){
+        boolean returnBool = false;
+        try (Connection sql = dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement("DELETE * FROM network_request WHERE sender = ? AND receiver = ?");
+        ) {
+            statement.setString(1, sender.toString());
+            statement.setString(2, me.toString());
+
+            ResultSet result = statement.executeQuery();
+            if(result.next()){
+                bungeeLogger.DebugV("Suppression réussie du friend request"+sender, 2);
+            }
+
+            result.close();
+
+
+        } catch (SQLException e) {
+            bungeeLogger.DebugV("Echec de la suppression du friend friend request"+sender, 2);
+            e.printStackTrace();
+        }
+
+        try (Connection sql = dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement("REPLACE INTO network_friends VALUES (?, ?, ?, ?)");
+        ) {
+            statement.setString(1, sender.toString());
+            statement.setString(2, me.toString());
+
+            int id = statement.executeUpdate();
+
+            if (id != 0) {
+                bungeeLogger.Admin("Amitié enregistrée");
+            } else {
+                bungeeLogger.Admin("Problème dans l'ajout de l'amitié");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public static void denyRequest(UUID sender, UUID me){
+        boolean returnBool = false;
+        try (Connection sql = dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement("DELETE * FROM network_request WHERE sender = ? AND receiver = ?");
+        ) {
+            statement.setString(1, sender.toString());
+            statement.setString(2, me.toString());
+
+            ResultSet result = statement.executeQuery();
+            if(result.next()){
+                bungeeLogger.DebugV("Suppression réussie du friend request"+sender, 2);
+            }
+
+            result.close();
+
+
+        } catch (SQLException e) {
+            bungeeLogger.DebugV("Echec de la suppression du friend friend request"+sender, 2);
+            e.printStackTrace();
+        }
+
+    }
+
 
     public static boolean isFriend(UUID sender, UUID receiver) {
         boolean returnBool = false;
