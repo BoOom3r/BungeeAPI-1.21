@@ -20,7 +20,7 @@ public class GroupCMD extends Command {
     public void execute(CommandSender sender, String[] args) {
         bungeeLogger.DebugV(DebugUtils.debugCommand("group",args),2);
         if (sender instanceof ProxiedPlayer){
-            bungeeLogger.DebugV("La commande group à été faite avec "+args.length+" argument(s)",2);
+            bungeeLogger.DebugV("La commande group à été faite avec "+args.length+" argument(s)",3);
             NetworkUser nSender = NetworkUser.getNetUserFromRedis(((ProxiedPlayer) sender).getUniqueId());
             if (nSender == null) {
                 bungeeLogger.DebugV("Erreur dans la récupération du NetworkSender",3);

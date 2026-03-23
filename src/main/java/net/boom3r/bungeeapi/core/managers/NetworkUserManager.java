@@ -4,10 +4,7 @@ import net.boom3r.bungeeapi.BungeeAPI;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.core.objects.ServerObject;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +66,25 @@ public class NetworkUserManager {
         return false;
     }
 
+    public List<String> getRegisteredPlayerList(){
+        List<String> nickNameList = new ArrayList<>();
+        try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
+             PreparedStatement statement = sql.prepareStatement("SELECT * FROM network_users");
+        ) {
 
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+                nickNameList.add(result.getString("uuid"));
+            }
+
+            result.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return nickNameList;
+    }
 
 
 }

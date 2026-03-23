@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.commands;
+package net.boom3r.bungeeapi.commands.interfaces;
 
 
 import net.md_5.bungee.api.ProxyServer;

@@ -1,5 +1,6 @@
 package net.boom3r.bungeeapi.commands;
 
+import net.boom3r.bungeeapi.commands.interfaces.BungeeCommand;
 import net.boom3r.bungeeapi.core.managers.ServerManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;

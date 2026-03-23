@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariDataSource;
 import net.boom3r.bungeeapi.commands.*;
 import net.boom3r.bungeeapi.commands.friends.FriendCommand;
-import net.boom3r.bungeeapi.commands.group.GroupCMD;
+import net.boom3r.bungeeapi.commands.group.GroupCommand;
 import net.boom3r.bungeeapi.commands.group.NetworkGroup;
+import net.boom3r.bungeeapi.commands.interfaces.BungeeCommandManager;
+import net.boom3r.bungeeapi.core.listeners.NetworkChatListener;
 import net.boom3r.bungeeapi.core.utils.DebugHttpServer;
 import net.boom3r.bungeeapi.core.listeners.BungeeListeners;
 import net.boom3r.bungeeapi.core.listeners.MOTDListener;
@@ -71,16 +73,18 @@ public final class BungeeAPI extends Plugin {
         // Enregistrement des listeners
         getProxy().getPluginManager().registerListener(bungeeInstance, new BungeeListeners());
         getProxy().getPluginManager().registerListener(bungeeInstance, new MOTDListener());
+        getProxy().getPluginManager().registerListener(bungeeInstance, new NetworkChatListener());
 
         bungeeLogger.Info("Chargement des Commandes");
         BungeeCommandManager manager = new BungeeCommandManager(this);
         manager.register(new ServerManagerCMD());
         manager.register(new FriendCommand());
+        manager.register(new GroupCommand());
+
         getProxy().getPluginManager().registerCommand(bungeeInstance, new HubCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new ServerManagerCMD_OLD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new MaintenanceCMD());
         getProxy().getPluginManager().registerCommand(bungeeInstance, new GlobalKickCMD());
-        getProxy().getPluginManager().registerCommand(bungeeInstance, new GroupCMD());
 
         // Création de la pool DB
         dataSourcePool = new HConnection().openPool(

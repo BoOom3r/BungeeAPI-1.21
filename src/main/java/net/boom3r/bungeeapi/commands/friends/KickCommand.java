@@ -1,8 +1,7 @@
 package net.boom3r.bungeeapi.commands.friends;
 
-import net.boom3r.bungeeapi.commands.BungeeCommand;
+import net.boom3r.bungeeapi.commands.interfaces.BungeeCommand;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 

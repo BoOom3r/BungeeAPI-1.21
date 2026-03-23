@@ -1,7 +1,6 @@
 package net.boom3r.bungeeapi.commands.friends;
 
-import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.commands.BungeeCommand;
+import net.boom3r.bungeeapi.commands.interfaces.BungeeCommand;
 import net.boom3r.bungeeapi.core.objects.NetworkUser;
 import net.boom3r.bungeeapi.core.utils.DebugUtils;
 import net.md_5.bungee.api.CommandSender;
@@ -9,16 +8,13 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeLogger;
+import static net.boom3r.bungeeapi.BungeeAPI.*;
 import static net.boom3r.bungeeapi.commands.friends.FriendManager.*;
+import static net.boom3r.bungeeapi.core.utils.NickUuidTool.*;
 
 public class FriendCommand  implements BungeeCommand {
     @Override
@@ -42,36 +38,61 @@ public class FriendCommand  implements BungeeCommand {
                 // TODO List
             }
             switch (args[0].toLowerCase()) {
+
                 case "add" -> {
                     // Envoie d'une invite à l'ami
                     // Vérification si l'ami a déjà envoyé une invitation
-                    if (isFriend(nSender.getUuid(), ProxyServer.getInstance().getPlayer(args[1]).getUniqueId())) {
+
+                    UUID playerUuid =  getUuidFromNick(args[1]);
+                    if (playerUuid == null) return;
+                    if (isFriend(nSender.getUuid(), playerUuid)) {
                         nSender.sendMessage("Tu es déjà ami avec ce joueur.");
                         return;
                     }
-                    if (isPendingFriend(nSender.getUuid(), ProxyServer.getInstance().getPlayer(args[1]).getUniqueId())) {
-                        nSender.sendMessage("Tu as déjà ami une demande d'ami en attente pour ce joueur.");
+                    if (isPendingFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu as déjà une demande d'ami en attente pour ce joueur.");
                         return;
                     }
 
-                    sendInvite(((ProxiedPlayer) sender).getUniqueId(), ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                    if(sendInvite(((ProxiedPlayer) sender).getUniqueId(), playerUuid)) nSender.sendMessage("Ta demande d'ami a bien été envoyée !");;
                 }
                 case "remove" -> {
-                    removeFromDb(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                    UUID playerUuid =  getUuidFromNick(args[1]);
+                    if (playerUuid == null) return;
+                    if (!isFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu n'es pas ami avec ce joueur.");
+                        return;
+                    }
+                    removeFromDb(((ProxiedPlayer) sender).getUniqueId(), playerUuid);
                 }
                 case "accept" -> {
-                    UUID owner =  ProxyServer.getInstance().getPlayer(args[1]).getUniqueId();
-                    if (owner == null ){
-                        owner = getPlayerUUIDFromDB(owner);
-                        if (owner == null){
-                            bungeeLogger.DebugV("Pas d'utilisateur connu",2);
-                            return;
-                        }
+                    UUID playerUuid =  getUuidFromNick(args[1]);
+                    if (playerUuid == null) return;
+                    if (isFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu es déjà ami avec ce joueur.");
+                        return;
                     }
-                    acceptInvite(((ProxiedPlayer) sender).getUniqueId(), owner);
+                    if (!isPendingFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu n'as pas de demande d'ami en attente pour ce joueur.");
+                        return;
+                    }
+                    if (acceptInvite(((ProxiedPlayer) sender).getUniqueId(), playerUuid)){
+                        nSender.sendMessage("Ajout de "+args[1]+" en tant qu'ami.");
+                        nSender.addFriend(playerUuid);
+                    };
                 }
                 case "deny" -> {
-                    denyRequest(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId(), ((ProxiedPlayer) sender).getUniqueId());
+                    UUID playerUuid =  getUuidFromNick(args[1]);
+                    if (playerUuid == null) return;
+                    if (isFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu es déjà ami avec ce joueur. Utilise remove pour le supprimer.");
+                        return;
+                    }
+                    if (!isPendingFriend(nSender.getUuid(), playerUuid)) {
+                        nSender.sendMessage("Tu n'as pas de demande d'ami en attente pour ce joueur.");
+                        return;
+                    }
+                    denyRequest(playerUuid, ((ProxiedPlayer) sender).getUniqueId());
                 }
                 case "list" -> { /* logique de suppression */ }
                 default ->
@@ -83,6 +104,7 @@ public class FriendCommand  implements BungeeCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
         List<String> playerlist = new ArrayList<>();
+        List<String> redisPlayerList = redisManager.load("network_user_list", List.class);
         if (args.length == 1) {
             return List.of("add", "remove", "accept", "deny", "list");
         }
@@ -94,6 +116,23 @@ public class FriendCommand  implements BungeeCommand {
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()){
                 playerlist.add(player.getDisplayName());
             }
+            for (String uuidPlayer : redisPlayerList){
+                String nickname = getPlayerNickFromDB(UUID.fromString(uuidPlayer));
+                if (nickname != null){
+                    if (!playerlist.contains(nickname)){
+                        playerlist.add(nickname);
+                    }
+                }
+            }
+            for (String uuidPlayer : networkManager.networkUserManager.getRegisteredPlayerList()){
+                String nickname = getPlayerNickFromDB(UUID.fromString(uuidPlayer));
+                if (nickname != null){
+                    if (!playerlist.contains(nickname)){
+                        playerlist.add(nickname);
+                    }
+                }
+            }
+
             return playerlist;
 
         }
@@ -102,22 +141,4 @@ public class FriendCommand  implements BungeeCommand {
         return List.of();
     }
 
-    public UUID getPlayerUUIDFromDB(UUID uuid){
-        UUID playerUuid = null;
-        try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("SELECT network_servers.uuid, network_servers.name, network_servers.address, network_servers.port, network_servers.motd, network_servers.players, network_servers.status, network_maintenance.status AS maintenance FROM network_servers LEFT JOIN network_maintenance ON network_servers.name = network_maintenance.server_name WHERE inactive = false");
-        ) {
-            statement.setString(2, uuid.toString());
-            ResultSet result = statement.executeQuery();
-            while (result.next()) {
-                playerUuid = java.util.UUID.fromString(result.getString("uuid"));
-            }
-
-            result.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return playerUuid;
-    }
 }

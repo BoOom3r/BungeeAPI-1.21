@@ -122,7 +122,15 @@ public class NetworkUser {
         return nUser;
     }
 
-//    @Override
+    public List<UUID> getFriendList() {
+        return friendList;
+    }
+
+    public void addFriend(UUID friendList) {
+        this.friendList.add(friendList);
+    }
+
+    //    @Override
 //    public boolean equals(Object obj) {
 //        if (this == obj) return true;
 //        if (!(obj instanceof NetworkUser other)) return false;
