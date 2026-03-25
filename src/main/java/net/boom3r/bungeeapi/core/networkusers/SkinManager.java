@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.core.objects;
+package net.boom3r.bungeeapi.core.networkusers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -8,7 +8,6 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.UUID;
 

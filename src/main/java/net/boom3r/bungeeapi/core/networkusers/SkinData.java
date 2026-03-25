@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.core.objects;
+package net.boom3r.bungeeapi.core.networkusers;
 
 public class SkinData {
     private final String value;

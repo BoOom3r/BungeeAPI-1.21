@@ -3,7 +3,7 @@ package net.boom3r.bungeeapi.commands.group;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.networkusers.NetworkUser;
 import net.boom3r.bungeeapi.core.objects.PubSubMessage;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

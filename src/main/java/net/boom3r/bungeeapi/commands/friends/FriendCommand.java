@@ -1,7 +1,7 @@
 package net.boom3r.bungeeapi.commands.friends;
 
 import net.boom3r.bungeeapi.commands.interfaces.BungeeCommand;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.networkusers.NetworkUser;
 import net.boom3r.bungeeapi.core.utils.DebugUtils;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;

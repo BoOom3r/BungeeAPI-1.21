@@ -2,9 +2,8 @@ package net.boom3r.bungeeapi.commands.group;
 
 import com.google.gson.Gson;
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.networkusers.NetworkUser;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;

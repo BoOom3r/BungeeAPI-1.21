@@ -1,10 +1,9 @@
-package net.boom3r.bungeeapi.core.objects;
+package net.boom3r.bungeeapi.core.networkusers;
 
 import com.google.gson.Gson;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,8 @@ public class NetworkUser {
         this.friendList = new ArrayList<>();
         this.actualServer = null;
         this.lastServer = null;
+        this.skinValue = null;
+        this.skinSignature = null;
 
         networkManager.networkUserManager.addNetworkUser(uuid, this);
     }
@@ -48,6 +49,8 @@ public class NetworkUser {
         this.friendList = new ArrayList<>();
         this.actualServer = "hisroom";
         this.lastServer = "hisroom";
+        this.skinValue = null;
+        this.skinSignature = null;
 
         networkManager.networkUserManager.addNetworkUser(uuid, this);
 

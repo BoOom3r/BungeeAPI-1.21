@@ -1,17 +1,13 @@
-package net.boom3r.bungeeapi.core.managers;
+package net.boom3r.bungeeapi.core.networkusers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
-import net.boom3r.bungeeapi.core.objects.ServerObject;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static net.boom3r.bungeeapi.BungeeAPI.*;
-import static net.boom3r.bungeeapi.BungeeAPI.redisEnabled;
 import static net.boom3r.bungeeapi.BungeeAPI.redisManager;
 
 public class NetworkUserManager {
@@ -43,12 +39,16 @@ public class NetworkUserManager {
         boolean retour = false;
 
         try (Connection sql = BungeeAPI.dataSourcePool.getConnection();
-             PreparedStatement statement = sql.prepareStatement("REPLACE INTO network_users (uuid, name, last_known_ip, last_conn) VALUES (?, ?, ?, ?)");
+             PreparedStatement statement = sql.prepareStatement(
+                     "REPLACE INTO network_users (uuid, name, last_known_ip, last_conn, skin_value, skin_signature) VALUES (?, ?, ?, ?, ?, ?)"
+             );
         ) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
             statement.setString(3, user.getIp());
             statement.setDate(4, new Date(System.currentTimeMillis()));
+            statement.setString(5, user.getSkinValue());
+            statement.setString(6, user.getSkinSignature());
 
             int id = statement.executeUpdate();
 
@@ -85,6 +85,5 @@ public class NetworkUserManager {
 
         return nickNameList;
     }
-
 
 }

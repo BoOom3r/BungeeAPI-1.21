@@ -1,6 +1,6 @@
 package net.boom3r.bungeeapi.commands.friends;
 
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.networkusers.NetworkUser;
 import net.md_5.bungee.api.ProxyServer;
 
 import java.sql.*;

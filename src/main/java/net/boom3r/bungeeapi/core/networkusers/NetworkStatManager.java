@@ -1,4 +1,4 @@
-package net.boom3r.bungeeapi.core.managers;
+package net.boom3r.bungeeapi.core.networkusers;
 
 import net.boom3r.bungeeapi.BungeeAPI;
 

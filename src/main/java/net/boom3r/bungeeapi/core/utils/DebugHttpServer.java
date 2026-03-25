@@ -5,17 +5,13 @@ import com.sun.net.httpserver.HttpServer;
 import net.boom3r.bungeeapi.commands.group.NetworkGroup;
 import net.boom3r.bungeeapi.commands.group.NetworkGroupManager;
 import net.boom3r.bungeeapi.core.managers.NetworkManager;
-import net.boom3r.bungeeapi.core.objects.NetworkUser;
+import net.boom3r.bungeeapi.core.networkusers.NetworkUser;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import static net.boom3r.bungeeapi.BungeeAPI.bungeeInstance;
 
 public class DebugHttpServer {
 
