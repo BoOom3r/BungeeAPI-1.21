@@ -196,7 +196,13 @@ public class GroupCommand implements BungeeCommand {
 
                 case "join" -> {
                     if (args.length == 2) {
-                        NetworkUser toJoin = NetworkUser.getNetUserFromRedis(ProxyServer.getInstance().getPlayer(args[1]).getUniqueId());
+                        ProxiedPlayer pToJoin = ProxyServer.getInstance().getPlayer(args[1]);
+                        if (pToJoin == null) {
+                            bungeeLogger.DebugV("Impossible d'inviter un joueur non connecté", 3);
+                            nSender.sendMessage("Ce joueur n'est pas connecté !");
+                            return;
+                        }
+                        NetworkUser toJoin = NetworkUser.getNetUserFromRedis(pToJoin.getUniqueId());
                         if (toJoin != null) {
                             if (networkManager.networkGroupManager.isInExistingGroup(nSender.getUuid())) {
                                 bungeeLogger.DebugV("Création du groupe impossible : déjà dans un groupe", 3);
@@ -223,7 +229,7 @@ public class GroupCommand implements BungeeCommand {
         List<String> playerlist = new ArrayList<>();
         List<String> redisPlayerList = redisManager.load("network_user_list", List.class);
         if (args.length == 1) {
-            return List.of("create", "add", "join", "quit", "destroy", "remove", "delete", "transfert");
+            return List.of("create", "invite", "add", "join", "quit", "destroy", "remove", "delete", "transfert");
         }
         if (args.length == 2
                 && (args[0].equalsIgnoreCase("join")

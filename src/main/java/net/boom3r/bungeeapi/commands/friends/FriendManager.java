@@ -97,7 +97,9 @@ public class FriendManager {
             int id = statement.executeUpdate();
 
             if (id != 0) {
+
                 bungeeLogger.Admin("Amitié enregistrée");
+
             } else {
                 bungeeLogger.Admin("Problème dans l'ajout de l'amitié");
             }

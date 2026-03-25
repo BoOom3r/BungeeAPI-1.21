@@ -23,6 +23,8 @@ public class NetworkUser {
     private String actualServer;
     private String lastServer;
     private List<UUID> friendList = new ArrayList<>();
+    private String skinValue;
+    private String skinSignature;
 
 
     public NetworkUser(UUID uuid, String name, String ip, boolean online, boolean isLinked) {
@@ -142,5 +144,12 @@ public class NetworkUser {
 //        return uuid.hashCode();
 //    }
 
+    public void updateSkin(String value, String signature) {
+        this.skinValue = value;
+        this.skinSignature = signature;
+    }
+
+    public String getSkinValue() { return skinValue; }
+    public String getSkinSignature() { return skinSignature; }
 
 }

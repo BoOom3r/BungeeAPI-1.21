@@ -79,7 +79,15 @@ public class FriendCommand  implements BungeeCommand {
                     if (acceptInvite(((ProxiedPlayer) sender).getUniqueId(), playerUuid)){
                         nSender.sendMessage("Ajout de "+args[1]+" en tant qu'ami.");
                         nSender.addFriend(playerUuid);
-                    };
+                        for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()){
+                            if (p.getUniqueId() == playerUuid){
+                                NetworkUser nFriend =  NetworkUser.getNetUserFromRedis(playerUuid);
+                                nFriend.addFriend(((ProxiedPlayer) sender).getUniqueId());
+                                return;
+                            }
+                        }
+
+                    }
                 }
                 case "deny" -> {
                     UUID playerUuid =  getUuidFromNick(args[1]);
